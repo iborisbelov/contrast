@@ -7,6 +7,8 @@ import { Icon } from '../Icon'
 import { EASE } from '../motion'
 import { BookInfo, ClosedBook, Spread } from './Book'
 import { CoAuthor, Whisper } from './CoAuthor'
+import { Reader } from '../library/Library'
+import { useState } from 'react'
 
 export function Desk() {
   return (
@@ -49,6 +51,8 @@ function IdeaTrail() {
 
 function Stage() {
   const { step, understood, view, book } = useStore()
+  const [reading, setReading] = useState(false)
+  const open = () => setReading(true)
   let key: string = step
   let scene: React.ReactNode
   if (step === 'idea') {
@@ -62,11 +66,11 @@ function Stage() {
       </div>
     )
   } else if (step === 'shape') {
-    scene = <div className="scene"><ClosedBook large /><BookInfo><p className="caption" style={{ marginTop: '1.35rem' }}>The cover updates as you choose a title and plan the chapters.</p></BookInfo></div>
+    scene = <div className="scene"><ClosedBook large onOpen={open} /><BookInfo><p className="caption" style={{ marginTop: '1.35rem' }}>The cover updates as you choose a title and plan the chapters.</p></BookInfo></div>
   } else if (step === 'publish') {
     const p = paletteFor(book.cover)
     scene = (
-      <div className="scene"><ClosedBook large />
+      <div className="scene"><ClosedBook large onOpen={open} />
         <BookInfo>
           <div className="eyebrow" style={{ marginTop: '1.95rem' }}>Link preview</div>
           <div className="og" style={{ background: p.bg }}>
@@ -79,7 +83,7 @@ function Stage() {
   } else if (view.mode === 'cover') {
     key = 'write-cover'
     scene = (
-      <div className="scene"><ClosedBook large />
+      <div className="scene"><ClosedBook large onOpen={open} />
         <BookInfo><p className="caption" style={{ marginTop: '1.35rem' }}>
           {paletteFor(book.cover).name} · {LAYOUTS.find((l) => l[0] === book.cover.layout)?.[1]} · {FONTS[book.cover.font].name}
         </p></BookInfo>
@@ -92,6 +96,7 @@ function Stage() {
   return (
     <div className="stage">
       <div key={key} className="stage-inner">{scene}</div>
+      <AnimatePresence>{reading && <Reader key="desk-reader" saved={{ book }} onClose={() => setReading(false)} />}</AnimatePresence>
     </div>
   )
 }

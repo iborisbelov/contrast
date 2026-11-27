@@ -95,7 +95,7 @@ export function Reader({ saved, onClose, footer }: { saved: Pick<SavedBook, 'boo
   const pages = useMemo(() => paginate(book), [book])
   const spreads = pages.length / 2
   const [spread, setSpread] = useState(0)
-  const [phase, setPhase] = useState<'closed' | 'opening' | 'open'>('closed')
+  const [phase, setPhase] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed')
   const [turn, setTurn] = useState<{ from: number; to: number } | null>(null)
 
   useEffect(() => {
@@ -116,31 +116,38 @@ export function Reader({ saved, onClose, footer }: { saved: Pick<SavedBook, 'boo
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') go(1)
       if (e.key === 'ArrowLeft') go(-1)
-      if (e.key === 'Escape' && onClose) { e.stopPropagation(); onClose() }
+      if (e.key === 'Escape' && onClose) { e.stopPropagation(); close() }
     }
     window.addEventListener('keydown', onKey, true)
     return () => window.removeEventListener('keydown', onKey, true)
-  }, [go, onClose])
+  }, [go, onClose, phase]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const p = (i: number) => <PageView page={pages[i]} book={book} n={i} />
   // What lies under the turning leaf: the destination pages on the side the leaf uncovers.
   const leftIdx = turn ? (turn.to > turn.from ? turn.from * 2 : turn.to * 2) : spread * 2
   const rightIdx = turn ? (turn.to > turn.from ? turn.to * 2 + 1 : turn.from * 2 + 1) : spread * 2 + 1
-  const closed = phase === 'closed'
+  const closed = phase === 'closed' || phase === 'closing'
+  /** Close like a book: back to the first spread, swing the cover shut, then leave. */
+  function close() {
+    if (!onClose || phase === 'closing') return
+    if (phase !== 'open') return onClose()
+    setTurn(null); setSpread(0); setPhase('closing')
+    setTimeout(onClose, 1050)
+  }
 
   return (
-    <motion.div className="reader" role="dialog" aria-modal="true" aria-label={`Reading ${book.title}`}
+    <motion.div className={`reader ${onClose ? 'closable' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) close() }} role="dialog" aria-modal="true" aria-label={`Reading ${book.title}`}
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.25 } }}>
-      {onClose && <button className="reader-close btn ghost sm" onClick={onClose}><Icon name="x" />Close</button>}
+      {onClose && <button className="reader-close btn ghost sm" onClick={close}><Icon name="x" />Close</button>}
 
-      <motion.div className="rbook" initial={{ scale: 0.7, y: 60, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1, x: closed ? '-25%' : '0%' }}
-        transition={{ duration: closed ? 0.5 : 1.1, ease: EASE }}>
-        <div className="rhalf left">{!closed && p(leftIdx)}</div>
+      <motion.div className="rbook" onClick={close} title={onClose ? 'Click to close' : undefined} initial={{ scale: 0.7, y: 60, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1, x: closed ? '-25%' : '0%' }}
+        transition={{ duration: phase === 'closed' ? 0.5 : 1.1, ease: EASE }}>
+        <div className="rhalf left" style={{ opacity: phase === 'closing' ? 0 : 1, transition: 'opacity .5s .45s' }}>{phase !== 'closed' && p(leftIdx)}</div>
         <div className="rhalf right">{!closed && p(rightIdx)}</div>
 
         {/* The cover: a leaf that swings open on the left edge of the right half. */}
         {phase !== 'open' && (
-          <motion.div className="leaf cover-leaf" initial={{ rotateY: 0 }} animate={{ rotateY: phase === 'opening' ? -180 : 0 }} transition={{ duration: 1.1, ease: [0.45, 0, 0.2, 1] }}>
+          <motion.div className="leaf cover-leaf" initial={{ rotateY: phase === 'closing' ? -180 : 0 }} animate={{ rotateY: phase === 'opening' ? -180 : 0 }} transition={{ duration: 1.1, ease: [0.45, 0, 0.2, 1] }}>
             <div className="face front"><Cover book={book} /></div>
             <div className="face back">{p(0)}</div>
           </motion.div>
@@ -161,7 +168,7 @@ export function Reader({ saved, onClose, footer }: { saved: Pick<SavedBook, 'boo
         <div className="gutter" aria-hidden="true" />
       </motion.div>
 
-      <motion.div className="reader-nav" initial={{ opacity: 0, y: 10 }} animate={{ opacity: phase === 'open' ? 1 : 0, y: phase === 'open' ? 0 : 10 }}>
+      <motion.div className="reader-nav" onClick={(e) => e.stopPropagation()} initial={{ opacity: 0, y: 10 }} animate={{ opacity: phase === 'open' ? 1 : 0, y: phase === 'open' ? 0 : 10 }}>
         <button className="navbtn" onClick={() => go(-1)} disabled={spread === 0 || !!turn} aria-label="Previous page"><Icon name="chevron-left" /></button>
         <span className="navlabel">Pages {spread * 2 + 1}–{spread * 2 + 2} of {pages.length}</span>
         <button className="navbtn" onClick={() => go(1)} disabled={spread >= spreads - 1 || !!turn} aria-label="Next page"><Icon name="chevron-right" /></button>

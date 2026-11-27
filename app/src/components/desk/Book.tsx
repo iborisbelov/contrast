@@ -10,7 +10,7 @@ import { Icon, type IconName } from '../Icon'
 import { EASE } from '../motion'
 
 /** Closed book. Lifts and turns whenever the cover design changes. */
-export function ClosedBook({ stage = 'final', large = false }: { stage?: 'empty' | 'sketch' | 'final'; large?: boolean }) {
+export function ClosedBook({ stage = 'final', large = false, onOpen }: { stage?: 'empty' | 'sketch' | 'final'; large?: boolean; onOpen?: () => void }) {
   const { book, step } = useStore()
   const thick = step === 'idea' ? 5 : 8 + book.chapters.length * 2.5
   const coverKey = JSON.stringify(book.cover)
@@ -23,7 +23,9 @@ export function ClosedBook({ stage = 'final', large = false }: { stage?: 'empty'
       <motion.div key={coverKey} style={{ transformPerspective: 1800 }}
         initial={first.current ? false : { y: -18, rotateY: -36, filter: 'brightness(.9)' }}
         animate={{ y: 0, rotateY: 0, filter: 'brightness(1)' }} transition={{ duration: 0.75, ease: EASE }}>
-        <div className={`book3d ${large ? 'lg' : ''}`} style={{ ['--thick' as string]: `${(thick * 1.2) / 16}rem` }}>
+        <div className={`book3d ${large ? 'lg' : ''} ${onOpen ? 'openable' : ''}`} style={{ ['--thick' as string]: `${(thick * 1.2) / 16}rem` }}
+          onClick={onOpen} role={onOpen ? 'button' : undefined} tabIndex={onOpen ? 0 : undefined} aria-label={onOpen ? 'Open the book' : undefined}
+          onKeyDown={(e) => { if (onOpen && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onOpen() } }}>
           <div className="b-pages" />
           <div className="b-cover"><Cover book={book} stage={stage} /></div>
         </div>

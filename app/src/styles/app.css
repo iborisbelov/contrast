@@ -593,3 +593,9 @@ h2{font-size:1.8rem;line-height:1.2}
 .own-color input{position:absolute;inset:-.5rem;width:calc(100% + 1rem);height:calc(100% + 1rem);opacity:0;cursor:pointer}
 .own-color b{display:block;font-size:.95rem} .own-color span{font-size:.82rem;color:var(--muted)}
 .own-color div{flex:1}
+.book3d.openable{cursor:pointer}
+.book3d.openable::before{content:"Click to open";position:absolute;left:50%;bottom:-3.2rem;transform:translateX(-50%);font-size:.8rem;color:var(--muted);white-space:nowrap;opacity:0;transition:opacity .25s}
+.book3d.openable:hover::before,.book3d.openable:focus-visible::before{opacity:1}
+.reader.closable{cursor:zoom-out}
+.reader.closable .rbook{cursor:pointer}
+.reader-nav,.reader-close{cursor:default}
