@@ -574,3 +574,5 @@ h2{font-size:1.8rem;line-height:1.2}
 .cover-grid figure{margin:0}
 .mini-cover{aspect-ratio:2/3;border-radius:2px 5px 5px 2px;overflow:hidden;box-shadow:0 1rem 1.6rem -.8rem rgba(60,45,25,.5)}
 .cover-grid figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+.book-info .caption{text-align:left;max-width:none}
+@container (max-width: 52rem){ .book-info .caption{text-align:center} }

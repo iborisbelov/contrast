@@ -62,7 +62,7 @@ function Stage() {
       </div>
     )
   } else if (step === 'shape') {
-    scene = <div className="scene"><ClosedBook large /><BookInfo><p className="caption" style={{ textAlign: 'left', marginTop: '1.35rem' }}>The cover updates as you choose a title and plan the chapters.</p></BookInfo></div>
+    scene = <div className="scene"><ClosedBook large /><BookInfo><p className="caption" style={{ marginTop: '1.35rem' }}>The cover updates as you choose a title and plan the chapters.</p></BookInfo></div>
   } else if (step === 'publish') {
     const p = PALETTES[book.cover.pal]
     scene = (
@@ -80,7 +80,7 @@ function Stage() {
     key = 'write-cover'
     scene = (
       <div className="scene"><ClosedBook large />
-        <BookInfo><p className="caption" style={{ textAlign: 'left', marginTop: '1.35rem' }}>
+        <BookInfo><p className="caption" style={{ marginTop: '1.35rem' }}>
           {PALETTES[book.cover.pal].name} · {LAYOUTS.find((l) => l[0] === book.cover.layout)?.[1]} · {FONTS[book.cover.font].name}
         </p></BookInfo>
       </div>
