@@ -1,9 +1,9 @@
 /** Step 4: one question first ("what do you want to do with it?"), then the ready check. */
 import { useState } from 'react'
-import { PALETTES } from '../../lib/content'
 import { audienceLabel, useStore } from '../../lib/store'
 import { contrast, pagesFor } from '../../lib/text'
 import { shareUrl } from '../../lib/share'
+import { paletteFor } from '../Cover'
 import { Icon } from '../Icon'
 import { Stagger } from '../motion'
 
@@ -11,7 +11,7 @@ export function Publish() {
   const s = useStore()
   const { book, showToast, goStep, openChapter } = s
   const failed = book.chapters.filter((c) => c.status !== 'done')
-  const p = PALETTES[book.cover.pal]
+  const p = paletteFor(book.cover)
   const cr = contrast(p.ink, p.bg)
   const [desc, setDesc] = useState(`${book.title}: ${book.subtitle}. A free ${book.chapters.length}-chapter guide by ${book.author} for ${audienceLabel(s).toLowerCase()}.`)
   const copy = (text: string, msg: string) => { navigator.clipboard?.writeText(text).catch(() => {}); showToast(msg) }
@@ -23,7 +23,7 @@ export function Publish() {
       <p className="lead">Pick one. You can come back for the others.</p>
       <div className="outcomes" style={{ marginTop: 0 }}>
         <button className="outcome primary" onClick={() => window.print()}><Icon name="file-down" /><strong>Download PDF</strong><span>Print-ready, 6×9 in</span></button>
-        <button className="outcome" onClick={async () => copy(await shareUrl(book), 'Link copied. Anyone with it can read your book.')}><Icon name="link" /><strong>Copy share link</strong><span>A page anyone can read</span></button>
+        <button className="outcome" onClick={async () => copy(await shareUrl(book), book.cover.image ? 'Link copied. Your own image isn’t included in links yet.' : 'Link copied. Anyone with it can read your book.')}><Icon name="link" /><strong>Copy share link</strong><span>A page anyone can read</span></button>
         <button className="outcome" onClick={async () => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(await shareUrl(book))}`, '_blank', 'noopener')}><Icon name="linkedin" /><strong>Post on LinkedIn</strong><span>Share a link to read it</span></button>
         <button className="outcome" onClick={async () => { location.href = `mailto:?subject=${encodeURIComponent(book.title)}&body=${encodeURIComponent(`${desc}\n\nRead it here: ${await shareUrl(book)}`)}` }}><Icon name="mail" /><strong>Send by email</strong><span>To your list or clients</span></button>
       </div>

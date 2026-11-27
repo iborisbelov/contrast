@@ -1,11 +1,11 @@
 /** The book on the desk: closed (cover) or open (contents + chapter). */
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
-import { PALETTES, PARA_LABEL, THEMES } from '../../lib/content'
+import { PARA_LABEL, THEMES } from '../../lib/content'
 import { useStore } from '../../lib/store'
 import { isPlaceholder, pagesFor } from '../../lib/text'
 import type { ParaKind } from '../../lib/types'
-import { Cover } from '../Cover'
+import { Cover, paletteFor } from '../Cover'
 import { Icon, type IconName } from '../Icon'
 import { EASE } from '../motion'
 
@@ -55,7 +55,7 @@ export function Spread() {
   const ci = view.chapter
   const ch = book.chapters[ci]
   const theme = THEMES[book.style.theme]
-  const acc = book.style.theme === 'warm' ? PALETTES[book.cover.pal].motif : book.style.theme === 'modern' ? '#1E1D1B' : '#B8433D'
+  const acc = book.style.theme === 'warm' ? paletteFor(book.cover).motif : book.style.theme === 'modern' ? '#1E1D1B' : '#B8433D'
   const prev = useRef(ci)
   const dir = ci >= prev.current ? 1 : -1
   useEffect(() => { prev.current = ci }, [ci])

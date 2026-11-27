@@ -4,7 +4,7 @@ import { CHAPTER_LABEL, FONTS, LAYOUTS, MOTIFS, PALETTES, THEMES } from '../../l
 import { useStore } from '../../lib/store'
 import { contrast } from '../../lib/text'
 import type { Book, ChapterKind, RefineTab, Theme } from '../../lib/types'
-import { Cover } from '../Cover'
+import { Cover, paletteFor } from '../Cover'
 import { Icon, type IconName } from '../Icon'
 import { Stagger } from '../motion'
 import { OutlineEditor } from './OutlineEditor'
@@ -113,7 +113,7 @@ function BookField({ field, label }: { field: 'title' | 'subtitle' | 'author'; l
 function CoverTab() {
   const { book, setCover, shuffleCover } = useStore()
   const c = book.cover
-  const p = PALETTES[c.pal]
+  const p = paletteFor(c)
   const cr = contrast(p.ink, p.bg)
   return (
     <>
@@ -148,15 +148,74 @@ function CoverTab() {
       <div className="chips" style={{ margin: 0 }}>
         {MOTIFS.map(([k, n]) => <button key={k} className={`chip ${c.motif === k ? 'on' : ''}`} onClick={() => setCover('motif', k)}>{n}</button>)}
       </div>
+      <OwnCover />
       <div className="section-t">Text on the cover</div>
       <BookField field="title" label="Title" />
       <BookField field="subtitle" label="Subtitle" />
       <BookField field="author" label="Author" />
       <div className="check">
         <span className="mini"><Cover book={book} /></span>
-        {cr >= 4.5
+        {c.image && c.imageMode !== 'art' ? <span><span className="ok-t">Title sits on a soft shade</span> <span className="muted">· readable on any photo</span></span> : cr >= 4.5
           ? <span><span className="ok-t">Readable as a thumbnail</span> <span className="muted">· contrast {cr.toFixed(1)}:1</span></span>
           : <span className="warn-t">Title may be hard to read small ({cr.toFixed(1)}:1)</span>}
+      </div>
+    </>
+  )
+}
+
+/** Resize an uploaded image in the browser so the book stays light (autosave, library, PDF). */
+function resizeImage(file: File, max = 900): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height))
+      const cv = document.createElement('canvas'); cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k)
+      cv.getContext('2d')!.drawImage(img, 0, 0, cv.width, cv.height)
+      URL.revokeObjectURL(img.src); resolve(cv.toDataURL('image/jpeg', 0.82))
+    }
+    img.onerror = () => reject(new Error('unreadable'))
+    img.src = URL.createObjectURL(file)
+  })
+}
+
+function OwnCover() {
+  const { book, setCover, showToast } = useStore()
+  const c = book.cover
+  const file = useRef<HTMLInputElement>(null)
+  const onFile = async (f?: File) => {
+    if (!f) return
+    if (!f.type.startsWith('image/')) return showToast('That file isn’t an image. Try a JPG or PNG.')
+    if (f.size > 15 * 1024 * 1024) return showToast('That image is over 15 MB. Try a smaller one.')
+    try { const url = await resizeImage(f); setCover('image', url); if (!c.imageMode) setCover('imageMode', 'full') }
+    catch { showToast('I couldn’t read that image. Try another one.') }
+  }
+  return (
+    <>
+      <div className="section-t">Your own</div>
+      <div className="own">
+        <input ref={file} type="file" accept="image/*" hidden onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = '' }} />
+        {c.image ? (
+          <div className="own-img">
+            <img src={c.image} alt="Your cover image" />
+            <div>
+              <div className="seg" role="group" aria-label="How to use the image">
+                <button className={c.imageMode !== 'art' ? 'on' : ''} onClick={() => setCover('imageMode', 'full')}>Full cover</button>
+                <button className={c.imageMode === 'art' ? 'on' : ''} onClick={() => setCover('imageMode', 'art')}>As artwork</button>
+              </div>
+              <div className="own-actions"><button className="btn quiet sm" onClick={() => file.current?.click()}><Icon name="image" />Replace</button><button className="btn quiet sm" onClick={() => setCover('image', undefined)}><Icon name="x" />Remove</button></div>
+            </div>
+          </div>
+        ) : (
+          <button className="own-drop" onClick={() => file.current?.click()}
+            onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); void onFile(e.dataTransfer.files?.[0]) }}>
+            <Icon name="image" /><b>Upload your image</b><span>Drop a photo or illustration, or click to choose. JPG or PNG.</span>
+          </button>
+        )}
+        <label className="own-color">
+          <span className="sw" style={{ background: c.bg ?? paletteFor({ ...c, bg: undefined, image: undefined }).bg }}><input type="color" value={c.bg ?? '#E8D9C0'} onChange={(e) => setCover('bg', e.target.value)} aria-label="Background colour" /></span>
+          <div><b>Background colour</b><span>{c.bg ? `${c.bg.toUpperCase()} · text colour picked for contrast` : 'Using the palette above'}</span></div>
+          {c.bg && <button className="btn quiet sm" onClick={(e) => { e.preventDefault(); setCover('bg', undefined) }}>Reset</button>}
+        </label>
       </div>
     </>
   )

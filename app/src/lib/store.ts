@@ -136,7 +136,11 @@ export const useStore = create<State & Actions>()(persist(immer((set, get) => {
     d.co.push({ from: 'ai', text, ...opts, at: Date.now() })
     if (!d.coOpen) { d.unread = true; d.whisper = { text, id: Date.now() } }
   }
+  let lastMemo = { label: '', at: 0 }
   const remember = (d: D, label: string) => {
+    const now = Date.now()
+    if (label === lastMemo.label && now - lastMemo.at < 1500) { lastMemo.at = now; return }
+    lastMemo = { label, at: now }
     d.history.push({ label, book: current(d.book) as Book })
     if (d.history.length > 60) d.history.shift()
   }
@@ -573,7 +577,7 @@ export const useStore = create<State & Actions>()(persist(immer((set, get) => {
       c.versions.push({ label: `Restored: ${c.versions[i].label}`, paras: [...c.paras] })
       d.pending = null; toast(d, 'Version restored')
     }),
-    setCover: (k, v) => set((d) => { remember(d, `Cover · ${k}`); d.book.cover[k] = v }),
+    setCover: (k, v) => set((d) => { remember(d, `Cover · ${k}`); d.book.cover[k] = v; if (k === 'pal') d.book.cover.bg = undefined }),
     shuffleCover: () => set((d) => { remember(d, 'Shuffle cover'); d.book.cover = randomCover(d.book.cover) }),
     setTheme: (t) => set((d) => { remember(d, 'Interior style'); d.book.style.theme = t }),
     setDropcap: (v) => set((d) => { remember(d, 'Drop cap'); d.book.style.dropcap = v }),

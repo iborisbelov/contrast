@@ -16,6 +16,7 @@ async function pipe(data: Uint8Array, stream: CompressionStream | DecompressionS
 export async function encodeBook(book: Book): Promise<string> {
   const slim: Book = {
     ...book,
+    cover: { ...book.cover, image: undefined, imageMode: undefined },
     chapters: book.chapters.filter((c) => c.status === 'done').map((c) => ({ ...c, paras: c.paras.filter((p) => !isPlaceholder(p)), versions: [], doneAt: undefined })),
   }
   const raw = new TextEncoder().encode(JSON.stringify(slim))

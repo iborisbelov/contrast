@@ -3,7 +3,7 @@
  * and type pairing set the mood, and four composition archetypes give real
  * variety (not a template with the title swapped in).
  */
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { FONTS, PALETTES, type Palette } from '../lib/content'
 import type { Book, CoverSpec, Motif } from '../lib/types'
 
@@ -111,8 +111,18 @@ export function Cover({ book, stage = 'final', override }: { book: Book; stage?:
     )
   }
 
-  const p = PALETTES[c.pal]
+  const p = paletteFor(c)
   const f = FONTS[c.font]
+  const clip = useId().replace(/:/g, '')
+  const photo = c.image && c.imageMode !== 'art'
+  // Artwork mode: the author's image takes the motif's place, clipped to that shape.
+  const Art = ({ x, y, w, h, round }: { x: number; y: number; w: number; h: number; round?: boolean }) => c.image ? (
+    <g>
+      <defs><clipPath id={`${clip}a${x}`}>{round ? <circle cx={x + w / 2} cy={y + h / 2} r={w / 2} /> : <rect x={x} y={y} width={w} height={h} rx={4} />}</clipPath></defs>
+      <image href={c.image} x={x} y={y} width={w} height={h} preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clip}a${x})`} />
+    </g>
+  ) : null
+  const motifOr = (node: ReactNode, art: ReactNode) => (c.image && c.imageMode === 'art' ? art : photo ? null : node)
   const title = book.title || 'Untitled'
   const sub = book.subtitle
   const T = (txt: string, x: number, y: number, size: number, anchor: 'start' | 'middle' = 'start', ls?: number) => (
@@ -125,33 +135,50 @@ export function Cover({ book, stage = 'final', override }: { book: Book; stage?:
   let art: ReactNode
   if (c.layout === 'object') {
     const L = wrap(title, 12)
-    art = <>{L.map((l, i) => T(l, 26, 76 + i * 38, 33))}{U(sub, 26, 76 + Math.max(L.length, 2) * 38 - 6, 12)}<MotifShape kind={c.motif} cx={150} cy={326} r={86} p={p} />{U(author, 26, 432, 10, 'start', 0.85, 2)}</>
+    art = <>{L.map((l, i) => T(l, 26, 76 + i * 38, 33))}{U(sub, 26, 76 + Math.max(L.length, 2) * 38 - 6, 12)}{motifOr(<MotifShape kind={c.motif} cx={150} cy={326} r={86} p={p} />, <Art x={26} y={214} w={248} h={196} />)}{U(author, 26, 432, 10, 'start', 0.85, 2)}</>
   } else if (c.layout === 'type') {
     const L = wrap(title, 9)
     const y = 104 + (L.length - 1) * 50 + 28
-    art = <>{L.map((l, i) => T(l, 22, 104 + i * 50, 48, 'start', -1))}<rect x="24" y={y} width="60" height="3" fill={p.motif} />{U(sub, 24, y + 26, 12)}<MotifShape kind={c.motif} cx={244} cy={378} r={32} p={p} />{U(author, 24, 432, 10, 'start', 0.85, 2)}</>
+    art = <>{L.map((l, i) => T(l, 22, 104 + i * 50, 48, 'start', -1))}<rect x="24" y={y} width="60" height="3" fill={p.motif} />{U(sub, 24, y + 26, 12)}{motifOr(<MotifShape kind={c.motif} cx={244} cy={378} r={32} p={p} />, <Art x={196} y={330} w={86} h={86} round />)}{U(author, 24, 432, 10, 'start', 0.85, 2)}</>
   } else if (c.layout === 'pattern') {
     const L = wrap(title, 14)
     const top = 190 - (L.length - 1) * 16
     const tiles: ReactNode[] = []
-    if (c.motif !== 'none') for (let r = 0; r < 9; r++) for (let col = 0; col < 6; col++) {
+    if (c.motif !== 'none' && !c.image) for (let r = 0; r < 9; r++) for (let col = 0; col < 6; col++) {
       tiles.push(<g key={`${r}-${col}`} opacity={0.28}><MotifShape kind={c.motif} cx={25 + col * 50 + (r % 2 ? 25 : 0)} cy={25 + r * 50} r={15} p={p} /></g>)
     }
-    art = <>{tiles}<rect x="34" y="130" width="232" height="200" fill={p.panel} />{L.map((l, i) => T(l, 150, top + i * 33, 28, 'middle'))}{U(sub, 150, top + L.length * 33 + 4, 11, 'middle')}{U(author, 150, 310, 10, 'middle', 0.75, 2)}</>
+    art = <>{tiles}{c.image && c.imageMode === 'art' && <Art x={0} y={0} w={300} h={450} />}<rect x="34" y="130" width="232" height="200" fill={p.panel} />{L.map((l, i) => T(l, 150, top + i * 33, 28, 'middle'))}{U(sub, 150, top + L.length * 33 + 4, 11, 'middle')}{U(author, 150, 310, 10, 'middle', 0.75, 2)}</>
   } else {
     const L = wrap(title, 13)
     art = <>
       <rect x="16" y="16" width="268" height="418" fill="none" stroke={p.ink} strokeWidth="1.5" opacity=".7" />
       <rect x="22" y="22" width="256" height="406" fill="none" stroke={p.ink} strokeWidth=".6" opacity=".5" />
       {L.map((l, i) => T(l, 150, 104 + i * 37, 31, 'middle'))}{U(sub, 150, 104 + L.length * 37 + 2, 11.5, 'middle')}
-      <MotifShape kind={c.motif} cx={150} cy={300} r={50} p={p} />{U(author, 150, 404, 10, 'middle', 0.85, 3)}
+      {motifOr(<MotifShape kind={c.motif} cx={150} cy={300} r={50} p={p} />, <Art x={95} y={245} w={110} h={110} round />)}{U(author, 150, 404, 10, 'middle', 0.85, 3)}
     </>
   }
 
   return (
     <svg viewBox="0 0 300 450" className="cover-svg" role="img" aria-label={`Cover: ${title}`}>
       <rect width="300" height="450" fill={p.bg} />
+      {photo && <>
+        <defs><linearGradient id={`${clip}s`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#000" stopOpacity=".62" /><stop offset=".45" stopColor="#000" stopOpacity=".12" /><stop offset=".75" stopColor="#000" stopOpacity=".1" /><stop offset="1" stopColor="#000" stopOpacity=".55" /></linearGradient></defs>
+        <image href={c.image} width="300" height="450" preserveAspectRatio="xMidYMid slice" />
+        <rect width="300" height="450" fill={`url(#${clip}s)`} />
+      </>}
       {art}
     </svg>
   )
+}
+
+function lum(hex: string) {
+  const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)))
+  return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]
+}
+/** Effective colours for a cover: preset palette, a custom background (ink picked for contrast) or a photo (white ink on a scrim). */
+export function paletteFor(c: CoverSpec): Palette {
+  const base = PALETTES[c.pal] ?? PALETTES[0]
+  if (c.image && c.imageMode !== 'art') return { ...base, name: 'Your photo', bg: '#2A2622', ink: '#FFFFFF', panel: 'rgba(0,0,0,.45)' }
+  if (c.bg) { const dark = lum(c.bg) < 0.36; return { ...base, name: 'Your colour', bg: c.bg, ink: dark ? '#FBF8F1' : '#1E1D1B', score: c.bg, panel: c.bg } }
+  return base
 }

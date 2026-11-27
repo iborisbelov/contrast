@@ -1,9 +1,9 @@
 /** Scoped co-author: chat that only ever makes visible, undoable changes. */
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { LAYOUTS, PALETTES } from '../../lib/content'
+import { LAYOUTS } from '../../lib/content'
 import { coSuggestions, useStore } from '../../lib/store'
-import { Cover } from '../Cover'
+import { Cover, paletteFor } from '../Cover'
 import { Icon } from '../Icon'
 import { EASE } from '../motion'
 
@@ -41,7 +41,7 @@ export function CoAuthor() {
                 {m.undo && history.length > 0 && <> <button className="link" onClick={s.undo}>Undo</button></>}
                 {m.card && (
                   <div className="msg-card"><span className="mini"><Cover book={book} /></span>
-                    <div><b>{book.title}</b><span>{PALETTES[book.cover.pal].name} · {LAYOUTS.find((l) => l[0] === book.cover.layout)?.[1]}</span></div>
+                    <div><b>{book.title}</b><span>{paletteFor(book.cover).name} · {LAYOUTS.find((l) => l[0] === book.cover.layout)?.[1]}</span></div>
                   </div>
                 )}
               </motion.div>

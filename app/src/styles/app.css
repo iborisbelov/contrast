@@ -576,3 +576,20 @@ h2{font-size:1.8rem;line-height:1.2}
 .cover-grid figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
 .book-info .caption{text-align:left;max-width:none}
 @container (max-width: 52rem){ .book-info .caption{text-align:center} }
+.spread{height:calc(100vh - 11.5rem) !important;max-height:60rem}
+
+/* own image + background */
+.own{display:grid;gap:.6rem}
+.own-drop{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:1.2rem;border:1.5px dashed var(--faint);border-radius:var(--r-lg);background:rgba(255,255,255,.5);color:var(--ink-2);text-align:center;transition:border-color .2s,background .2s}
+.own-drop:hover{border-color:var(--ink);background:var(--surface)}
+.own-drop svg.lucide{width:1.5rem;height:1.5rem;color:var(--muted)}
+.own-drop span{font-size:.85rem;color:var(--muted)}
+.own-img{display:flex;gap:.9rem;align-items:center;background:var(--surface);border-radius:var(--r-lg);padding:.6rem;box-shadow:var(--e1)}
+.own-img img{width:4.2rem;height:5.6rem;object-fit:cover;border-radius:4px;flex:none}
+.own-img .seg{width:max-content}
+.own-actions{display:flex;gap:.2rem;margin-top:.4rem}
+.own-color{display:flex;align-items:center;gap:.9rem;background:var(--surface);border-radius:var(--r-lg);padding:.6rem .8rem;box-shadow:var(--e1);cursor:pointer}
+.own-color .sw{position:relative;width:2.6rem;height:2.6rem;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);flex:none;overflow:hidden}
+.own-color input{position:absolute;inset:-.5rem;width:calc(100% + 1rem);height:calc(100% + 1rem);opacity:0;cursor:pointer}
+.own-color b{display:block;font-size:.95rem} .own-color span{font-size:.82rem;color:var(--muted)}
+.own-color div{flex:1}

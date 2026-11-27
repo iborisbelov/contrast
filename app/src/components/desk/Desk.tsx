@@ -1,8 +1,8 @@
 /** Right side: the living book, desk controls and the co-author. */
 import { AnimatePresence, motion } from 'framer-motion'
-import { FONTS, LAYOUTS, LENGTHS, PALETTES } from '../../lib/content'
+import { FONTS, LAYOUTS, LENGTHS } from '../../lib/content'
 import { useStore } from '../../lib/store'
-import { Cover } from '../Cover'
+import { Cover, paletteFor } from '../Cover'
 import { Icon } from '../Icon'
 import { EASE } from '../motion'
 import { BookInfo, ClosedBook, Spread } from './Book'
@@ -64,7 +64,7 @@ function Stage() {
   } else if (step === 'shape') {
     scene = <div className="scene"><ClosedBook large /><BookInfo><p className="caption" style={{ marginTop: '1.35rem' }}>The cover updates as you choose a title and plan the chapters.</p></BookInfo></div>
   } else if (step === 'publish') {
-    const p = PALETTES[book.cover.pal]
+    const p = paletteFor(book.cover)
     scene = (
       <div className="scene"><ClosedBook large />
         <BookInfo>
@@ -81,7 +81,7 @@ function Stage() {
     scene = (
       <div className="scene"><ClosedBook large />
         <BookInfo><p className="caption" style={{ marginTop: '1.35rem' }}>
-          {PALETTES[book.cover.pal].name} · {LAYOUTS.find((l) => l[0] === book.cover.layout)?.[1]} · {FONTS[book.cover.font].name}
+          {paletteFor(book.cover).name} · {LAYOUTS.find((l) => l[0] === book.cover.layout)?.[1]} · {FONTS[book.cover.font].name}
         </p></BookInfo>
       </div>
     )

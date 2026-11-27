@@ -22,7 +22,11 @@ export interface Chapter {
   doneAt?: number
 }
 
-export interface CoverSpec { layout: Layout; pal: number; font: FontKey; motif: Motif }
+export interface CoverSpec {
+  layout: Layout; pal: number; font: FontKey; motif: Motif
+  /** Optional: the author's own image (data URL, resized) and a custom background colour. */
+  image?: string; imageMode?: 'full' | 'art'; bg?: string
+}
 
 export interface Book {
   title: string
