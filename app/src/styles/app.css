@@ -722,3 +722,12 @@ h2{font-size:1.8rem;line-height:1.2}
   .stage-inner > .scene { height: auto; min-height: 100%; padding: 1rem 0 }
   .stage { overflow-y: auto }
 }
+/* dialogs never wider than the screen */
+.modal{padding:1rem}
+.modal-card,.crash .modal-card{width:min(400px,100%);max-width:100%}
+@media (max-width: 760px){
+  .modal-card{padding:1.3rem}
+  .modal-card h2{font-size:1.5rem}
+  .modal-card > div:last-child{flex-direction:column-reverse}
+  .modal-card > div:last-child .btn{width:100%;justify-content:center}
+}
