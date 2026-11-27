@@ -47,6 +47,8 @@ export function IdeaQuestion() {
       <div className="chips" style={{ marginTop: '.75rem' }}>
         <span className="muted" style={{ fontSize: '.975rem', alignSelf: 'center' }}>Try</span>
         <button className="chip" onClick={useExample}><Icon name="sparkles" />Sourdough for busy people</button>
+        <button className="chip" onClick={() => { setIdea('A 30-day plan for coaching clients to build daily confidence'); setTimeout(() => void analyzeIdea(), 0) }}>A coach’s 30-day plan</button>
+        <button className="chip" onClick={() => { setIdea('How small creators can grow on Instagram without paid ads'); setTimeout(() => void analyzeIdea(), 0) }}>Grow on Instagram</button>
         <button className="chip" onClick={useVague}>“bread”</button>
       </div>
       {thinking === 'brief' && <Rise className="hint thinking"><span className="pulse" /><span>Reading your idea and preparing a few questions…</span></Rise>}

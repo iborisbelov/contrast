@@ -95,3 +95,8 @@ A running log of how AI was used in this project: what I asked, what it produced
 - **Sharing:** the finished book is compressed into the link (`#/read/…`), opening the 3D reader for anyone. LinkedIn and email now open real share flows.
 - **Docs:** `#/process` (research → decisions, how AI was used, evolution with every spike live, trade-offs, next steps) and `#/system` (tokens, type, space, components, cover system, motion), both built from the app's own components.
 - **Repo:** https://github.com/iborisbelov/contrast — code, research, notes, spikes, this log.
+
+## 2026-11-27 · Client answers (Oran)
+
+- **Who is the user?** "Could be a content creator, a coach or just anybody who wants to create an eBook." → Confirms the brief-agnostic direction: experts without writing/design skills, any topic. Changes: the first screen now offers examples for a coach and a creator next to the sourdough demo, and the process page states the persona and scope with the client's answer.
+- **Why do people give up on tools like this?** "If that info is important for your solution, please research it." → Already the core of the research (reviews of Designrr, Gamma and others → insight-to-decision table). The process page now shows the client conversation and how it drove the research.

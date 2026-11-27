@@ -31,9 +31,17 @@ export function ProcessPage() {
         <h2>The problem, in one line</h2>
         <p className="big">A coach, a baker or a teacher knows a lot. Turning that into a book feels like two jobs they don’t have: writer and designer. The tool has to do both jobs while keeping the book theirs.</p>
         <div className="doc-grid three">
-          <div className="card"><b>Who it’s for</b><p>Practitioners making a short guide (5–8 chapters) to share with clients and followers. Not fiction, not kids’ books, not print-on-demand.</p></div>
+          <div className="card"><b>Who it’s for</b><p>Anyone with know-how to share: content creators, coaches, practitioners. The client confirmed users vary, so nothing is tied to one niche; the AI tailors readers, voice and chapters to any topic. Scope: short non-fiction guides (4–8 chapters), not fiction or print.</p></div>
           <div className="card"><b>What success looks like</b><p>Idea to a designed, readable book in about five minutes, with every AI choice visible and reversible.</p></div>
           <div className="card"><b>What would make it fail</b><p>Generic “AI-sounding” text, a template cover, losing work, or an AI that silently ignores requests.</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Talking to the client</h2>
+        <div className="doc-grid two">
+          <div className="card"><b>I asked: who is the user?</b><p>“It could be a content creator, a coach or just anybody who wants to create an eBook.” So I designed for the common ground: experts without writing or design skills, and made every question adapt to the topic instead of a fixed niche.</p></div>
+          <div className="card"><b>I asked: why do people give up on tools like this?</b><p>The client asked me to research it. That question became the spine of the research below: reviews of Designrr, Gamma and other tools, and the decisions each finding led to.</p></div>
         </div>
       </section>
 
