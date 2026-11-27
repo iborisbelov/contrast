@@ -86,3 +86,12 @@ A running log of how AI was used in this project: what I asked, what it produced
 - **Built:** "Save to my library" as the first outcome on Publish; Library in the rail (with a count) showing covers on a shelf; reader that flies the book in, swings the cover open on its spine and turns pages as real 3D leaves (front/back faces, arrows or ← → keys, Esc to close). The book is paginated into printed pages (title, contents, chapters starting on a new page). Library is autosaved and survives "Start over".
 - **Why it matters for the brief:** "a finished eBook they're proud to share" — reading it as a book, not as an editor, is the moment of pride; it's also how readers will see it.
 - **Fell short / fixed:** shelf plank was hidden behind the page background (z-index); first pagination left pages half empty.
+
+## 2026-11-27 · Closing the gaps: real AI, sharing, docs, repo
+
+- **Audit (AI + me) against the brief found:** any topic produced a sourdough book (credibility killer), the share link pointed nowhere, no repo, the design system and process were invisible to a reviewer, no line explaining what the tool does.
+- **Real AI:** Groq `openai/gpt-oss-120b` behind `app/public/api/ai.php` on the same domain. Key stored outside the web root, fixed task prompts (brief, plan, chapter, rewrite) so it can't be used as an open proxy, per-IP rate limit. The brief step now tailors reader groups and tone samples to the user's topic and detects vague ideas; the plan step returns titles, chapters and a cover motif/palette; chapters and rewrites are written by the model. Every call has an offline fallback. The sourdough example stays as an instant, offline demo with the deliberate failure.
+- **AI fell short:** the first model name had been retired (404); listed available models from the server and switched.
+- **Sharing:** the finished book is compressed into the link (`#/read/…`), opening the 3D reader for anyone. LinkedIn and email now open real share flows.
+- **Docs:** `#/process` (research → decisions, how AI was used, evolution with every spike live, trade-offs, next steps) and `#/system` (tokens, type, space, components, cover system, motion), both built from the app's own components.
+- **Repo:** https://github.com/iborisbelov/contrast — code, research, notes, spikes, this log.
