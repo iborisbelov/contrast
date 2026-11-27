@@ -1,6 +1,6 @@
 /** Library: a shelf of saved books, and a reader that opens them like a real book. */
 import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { THEMES } from '../../lib/content'
 import { useStore, type SavedBook } from '../../lib/store'
 import { isPlaceholder } from '../../lib/text'
@@ -53,13 +53,13 @@ export function Library() {
 type Page = { kind: 'title' } | { kind: 'toc' } | { kind: 'text'; chapter: number; title?: string; paras: string[] } | { kind: 'end' }
 const PAGE_CHARS = 1250
 
-function paginate(book: Book): Page[] {
+function paginate(book: Book, chars = PAGE_CHARS): Page[] {
   const pages: Page[] = [{ kind: 'title' }, { kind: 'toc' }]
   book.chapters.filter((c) => c.status === 'done').forEach((c, ci) => {
     let cur: Page & { kind: 'text' } = { kind: 'text', chapter: ci, title: c.title, paras: [] }
     let used = 220 // the chapter opener takes room
     c.paras.filter((p) => !isPlaceholder(p)).forEach((p) => {
-      if (used + p.length > PAGE_CHARS && cur.paras.length) { pages.push(cur); cur = { kind: 'text', chapter: ci, paras: [] }; used = 0 }
+      if (used + p.length > chars && cur.paras.length) { pages.push(cur); cur = { kind: 'text', chapter: ci, paras: [] }; used = 0 }
       cur.paras.push(p); used += p.length + 60
     })
     pages.push(cur)
@@ -90,7 +90,61 @@ function PageView({ page, book, n }: { page?: Page; book: Book; n: number }) {
 
 const FLIP_MS = 700
 
-export function Reader({ saved, onClose, footer }: { saved: Pick<SavedBook, 'book'>; onClose?: () => void; footer?: ReactNode }) {
+type ReaderProps = { saved: Pick<SavedBook, 'book'>; onClose?: () => void; footer?: ReactNode }
+
+/** Desktop: a two-page spread with 3D page turns. Phones: one page per screen, swipe to turn. */
+export function Reader(props: ReaderProps) {
+  const [mobile] = useState(() => window.matchMedia('(max-width: 760px)').matches)
+  return mobile ? <MobileReader {...props} /> : <SpreadReader {...props} />
+}
+
+function MobileReader({ saved, onClose, footer }: ReaderProps) {
+  const { book } = saved
+  const pages = useMemo(() => paginate(book, 720).filter((pg, i, a) => !(pg.kind === 'end' && a[i - 1]?.kind === 'end')), [book])
+  const [idx, setIdx] = useState(-1) // -1 = closed cover
+  const [dir, setDir] = useState(1)
+  const touch = useRef<number | null>(null)
+  const go = useCallback((d: 1 | -1) => {
+    setIdx((i) => { const n = Math.max(-1, Math.min(pages.length - 1, i + d)); if (n !== i) setDir(d); return n })
+  }, [pages.length])
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); if (e.key === 'Escape' && onClose) onClose() }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [go, onClose])
+  const tap = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    go(e.clientX - r.left < r.width * 0.33 ? -1 : 1)
+  }
+  return (
+    <motion.div className="m-reader" role="dialog" aria-modal="true" aria-label={`Reading ${book.title}`}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      onTouchStart={(e) => { touch.current = e.touches[0].clientX }}
+      onTouchEnd={(e) => { if (touch.current === null) return; const dx = e.changedTouches[0].clientX - touch.current; touch.current = null; if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1) }}>
+      {onClose && <button className="reader-close btn ghost sm" onClick={onClose}><Icon name="x" />Close</button>}
+      <div className="m-stage" onClick={tap}>
+        {idx >= 0 && (
+          <motion.div key={idx} className="m-page" initial={{ opacity: 0, x: 40 * dir }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease: EASE }}>
+            <PageView page={pages[idx]} book={book} n={idx} />
+          </motion.div>
+        )}
+        <motion.div className="m-page m-cover" initial={false} animate={{ rotateY: idx < 0 ? 0 : -110, opacity: idx < 0 ? 1 : 0 }}
+          transition={{ duration: 0.8, ease: [0.45, 0, 0.2, 1] }} style={{ pointerEvents: idx < 0 ? 'auto' : 'none' }}>
+          <Cover book={book} />
+        </motion.div>
+      </div>
+      <div className="reader-nav" onClick={(e) => e.stopPropagation()}>
+        <button className="navbtn" onClick={() => go(-1)} disabled={idx < 0} aria-label="Previous page"><Icon name="chevron-left" /></button>
+        <span className="navlabel">{idx < 0 ? 'Cover' : `${idx + 1} / ${pages.length}`}</span>
+        <button className="navbtn" onClick={() => go(1)} disabled={idx >= pages.length - 1} aria-label="Next page"><Icon name="chevron-right" /></button>
+      </div>
+      <span className="m-hint">{idx < 0 ? 'Tap the cover to open' : 'Swipe or tap the edges to turn pages'}</span>
+      {footer}
+    </motion.div>
+  )
+}
+
+function SpreadReader({ saved, onClose, footer }: ReaderProps) {
   const { book } = saved
   const pages = useMemo(() => paginate(book), [book])
   const spreads = pages.length / 2
