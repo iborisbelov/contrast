@@ -756,3 +756,11 @@ h2{font-size:1.8rem;line-height:1.2}
   .dock-pill:has(.seg) .co-btn:hover { transform: translateX(-50%) scale(1.04) }
   .spread .page.right { padding-bottom: 4.2rem }
 }
+
+.m-next{display:none}
+@media (max-width: 760px) {
+  .m-next { display: inline-flex; white-space: nowrap; box-shadow: 0 .8rem 1.6rem -.7rem rgba(30,29,27,.7) }
+  .dock-pill:has(.seg):has(.m-next) .co-btn { left: calc(50% - .35rem); transform: translateX(-100%) }
+  .dock-pill:has(.seg):has(.m-next) .co-btn:hover { transform: translateX(-100%) scale(1.04) }
+  .dock-pill:has(.seg) .m-next { position: absolute; left: calc(50% + .35rem); bottom: calc(100% + .7rem); padding: .7rem 1.1rem }
+}

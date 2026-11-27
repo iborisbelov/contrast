@@ -109,6 +109,11 @@ function Dock() {
       <Icon name={coOpen ? 'x' : 'sparkles'} />{coOpen ? 'Close' : 'Ask co-author'}{unread && !coOpen && <span className="dot" />}
     </button>
   )
+  // Phones (book view): the next step's action, since the editor with its footer is hidden.
+  const next = step === 'write' ? (gen.running ? null : { label: 'Finish book', run: () => { s.goStep('publish'); s.setMobileView('edit') } })
+    : step === 'publish' ? { label: 'Save to library', run: () => { s.saveToLibrary(); s.openLibrary(true) } }
+    : { label: 'Back to questions', run: () => s.setMobileView('edit') }
+  const nextBtn = next && <button className="m-next btn primary" onClick={next.run}>{next.label} <Icon name="arrow-up-right" /></button>
   const note = step === 'idea' ? 'Stuck? Just tell me what you want.' : step === 'shape' ? 'Want a different title or chapter?' : 'Want a different cover?'
   return (
     <div className="dock">
@@ -129,9 +134,9 @@ function Dock() {
             )}
             <span className="div" />
             {gen.running && <span className="dock-note"><span className="pulse" />Writing {Math.min(book.chapters.filter((c) => c.status === 'done').length + 1, book.chapters.length)} of {book.chapters.length}</span>}
-            {co}
+            {co}{nextBtn}
           </>
-        ) : <><span className="dock-note">{note}</span>{co}</>}
+        ) : <><span className="dock-note">{note}</span>{co}{nextBtn}</>}
       </motion.div>
     </div>
   )
