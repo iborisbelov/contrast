@@ -699,3 +699,26 @@ h2{font-size:1.8rem;line-height:1.2}
   .library { grid-column: 1 / -1; grid-row: 1 }
   .app:has(.library) .rail { grid-row: 2 }
 }
+
+/* phones: one side at a time */
+.m-toggle{display:none}
+@media (max-width: 760px) {
+  .app { grid-template-rows: minmax(0, 1fr) auto }
+  .app > .panel, .app > .desk { grid-row: 1 }
+  .app.m-edit > .desk, .app.m-book > .panel { display: none }
+  .m-toggle { display: flex; position: fixed; top: .55rem; left: 50%; transform: translateX(-50%); z-index: 22; background: rgba(236,232,223,.95); backdrop-filter: blur(8px); box-shadow: var(--e1) }
+  .m-toggle button { padding: .45rem 1.1rem; font-size: .85rem }
+  .m-badge { margin-left: .4rem; font-size: .7rem; background: var(--coral); color: #fff; border-radius: 99px; padding: .05rem .4rem }
+  .panel-scroll { padding-top: 3.6rem }
+  .desk { border-bottom: none }
+  .stage { inset: 0 0 4.2rem 0; padding: 3.6rem 1rem .6rem }
+  .book3d, .book3d.lg { --w: min(15rem, 42dvh) }
+  .scene .book-info { display: block; text-align: center; margin-top: 2.4rem }
+  .scene { flex-direction: column }
+  .scene .book-info h2 { font-size: 1.6rem }
+  .scene .book-info .meta { justify-content: center }
+  .scene .book-info .caption { display: block; text-align: center }
+  .scene .book-info .og { margin: .6rem auto 0; width: 100% }
+  .stage-inner > .scene { height: auto; min-height: 100%; padding: 1rem 0 }
+  .stage { overflow-y: auto }
+}

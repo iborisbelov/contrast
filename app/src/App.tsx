@@ -46,9 +46,11 @@ export default function App() {
 function Studio() {
   useShortcuts()
   const screen = useStore((s) => s.screen)
+  const mobileView = useStore((s) => s.mobileView)
   return (
     <MotionConfig reducedMotion="user">
-      <div className="app">
+      <div className={`app ${mobileView === 'book' ? 'm-book' : 'm-edit'}`}>
+        {screen !== 'library' && <MobileToggle />}
         <Rail />
         {screen === 'library' ? <Library /> : <><Panel /><Desk /></>}
       </div>
@@ -56,5 +58,19 @@ function Studio() {
       <Toast />
       <PrintBook />
     </MotionConfig>
+  )
+}
+
+/** Phones only (hidden by CSS on desktop): switch between the editor and the book. */
+function MobileToggle() {
+  const { mobileView, setMobileView, gen, book } = useStore()
+  const writing = gen.running ? book.chapters.filter((c) => c.status === 'done').length : null
+  return (
+    <div className="m-toggle seg" role="tablist" aria-label="View">
+      <button role="tab" aria-selected={mobileView === 'edit'} className={mobileView === 'edit' ? 'on' : ''} onClick={() => setMobileView('edit')}>Editor</button>
+      <button role="tab" aria-selected={mobileView === 'book'} className={mobileView === 'book' ? 'on' : ''} onClick={() => setMobileView('book')}>
+        Book{writing !== null && <span className="m-badge">{writing}/{book.chapters.length}</span>}
+      </button>
+    </div>
   )
 }

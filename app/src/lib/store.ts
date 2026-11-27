@@ -44,6 +44,8 @@ const freshBook = (): Book => ({
 const initial = () => ({
   bookId: Date.now().toString(36),
   screen: 'create' as 'create' | 'library',
+  /** Phones show one side at a time: the editor (questions/tools) or the book. */
+  mobileView: 'edit' as 'edit' | 'book',
   readingId: null as string | null,
   library: [] as SavedBook[],
   step: 'idea' as Step,
@@ -127,6 +129,7 @@ interface Actions {
   setTheme(t: Theme): void; setDropcap(v: boolean): void
   undo(): void; askRestart(v: boolean): void; restart(): void
   saveToLibrary(): void; openLibrary(open: boolean): void; openBook(id: string | null): void; removeFromLibrary(id: string): void
+  setMobileView(v: 'edit' | 'book'): void
   toggleCo(open?: boolean): void; ask(text: string): void; showToast(text: string): void
 }
 
@@ -444,7 +447,7 @@ export const useStore = create<State & Actions>()(persist(immer((set, get) => {
     /* ---------- step 3: writing ---------- */
     startWriting: () => {
       set((d) => {
-        d.step = 'write'; d.view = { mode: 'pages', chapter: 0, tab: 'text' }
+        d.step = 'write'; d.view = { mode: 'pages', chapter: 0, tab: 'text' }; d.mobileView = 'book'
         d.gen = { running: true, started: true, streamId: null, streamed: '', msg: 'Planning how the chapters connect' }
         d.book.chapters.forEach((c) => { c.status = 'queued'; c.paras = []; c.versions = [] })
         say(d, 'Writing now. Chapter 1 appears first, so you can start reading while I write the rest.')
@@ -605,6 +608,7 @@ export const useStore = create<State & Actions>()(persist(immer((set, get) => {
     removeFromLibrary: (id) => set((d) => { d.library = d.library.filter((b) => b.id !== id); toast(d, 'Removed from your library') }),
 
     /* ---------- co-author ---------- */
+    setMobileView: (v) => set((d) => { d.mobileView = v }),
     toggleCo: (open) => set((d) => { d.coOpen = open ?? !d.coOpen; if (d.coOpen) { d.unread = false; d.whisper = null } }),
     ask: (text) => {
       const epoch = get().epoch
