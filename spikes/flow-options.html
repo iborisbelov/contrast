@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flow spike</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F3EE; --surface:#FFFFFF; --ink:#1D1A16; --muted:#6E675E; --line:#E4DED4;
+  --accent:#B8562B; --accent-soft:#F5E3D8; --ok:#2F7D4F; --ok-soft:#E3F1E8; --warn-soft:#FBF0DA;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{font-family:Fraunces,serif;font-weight:600;letter-spacing:-.01em;margin:0}
+h1{font-size:34px;line-height:1.15}
+h2{font-size:22px;line-height:1.25}
+h3{font-size:16px;margin:22px 0 8px}
+
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:20px;padding:10px 20px;background:#1D1A16;color:#F6F3EE}
+.brand{font-weight:600;white-space:nowrap}
+.brand span{font-weight:400;opacity:.6;margin-left:8px;font-size:13px}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tabs button{background:transparent;border:1px solid transparent;color:#CFC8BC;padding:6px 12px;border-radius:999px;font-size:14px}
+.tabs button.on{background:#F6F3EE;color:#1D1A16}
+.reset{background:transparent;border:1px solid #4A443C;color:#CFC8BC;padding:6px 12px;border-radius:999px;font-size:13px}
+
+.view{display:none;min-height:calc(100vh - 52px)}
+.view.on{display:block}
+
+/* shared controls */
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{color:var(--muted);margin:8px 0 18px}
+.muted{color:var(--muted)}
+.step-head{margin-bottom:18px}
+.step-head h1{margin-top:6px}
+.input{width:100%;border:1.5px solid var(--line);border-radius:var(--r);padding:12px 14px;font:inherit;background:var(--surface);resize:vertical}
+.input:focus{outline:none;border-color:var(--ink)}
+.input.big{font-size:18px}
+.btn{border:1.5px solid var(--ink);border-radius:999px;padding:10px 20px;font-weight:600;background:transparent}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.primary:hover{background:#000}
+.btn.ghost{border-color:var(--line);background:var(--surface)}
+.btn.sm{padding:6px 14px;font-size:13px}
+.link{background:none;border:none;padding:0;color:var(--accent);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.row{display:flex;gap:10px;align-items:center;margin-top:20px;flex-wrap:wrap}
+.examples{font-size:14px;color:var(--muted);margin:10px 0 18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14px}
+.chip:hover:not(.static):not(:disabled){border-color:var(--ink)}
+.chip.static{cursor:default;background:#F1ECE4}
+.chip:disabled{opacity:.45;cursor:not-allowed}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.notice{background:var(--warn-soft);border-radius:var(--r);padding:14px 16px;margin:14px 0;font-size:14px}
+.notice.ok{background:var(--ok-soft)}
+.notice .btn{margin-left:6px}
+.restate{font-family:Fraunces,serif;font-size:19px;margin:6px 0 4px}
+.field-label{display:block;font-weight:600;font-size:14px;margin:16px 0 6px}
+.field-label span{font-weight:400;color:var(--muted)}
+
+.titles{display:grid;gap:8px}
+.title-opt{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px 14px}
+.title-opt strong{font-family:Fraunces,serif;font-size:17px;font-weight:600}
+.title-opt span{font-size:13px;color:var(--muted)}
+.title-opt.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.title-opt.custom{padding:6px}
+.title-opt.custom .input{border:none;padding:8px}
+
+.outline{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.outline li{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px}
+.num{width:24px;height:24px;border-radius:50%;background:#F1ECE4;display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.ctitle{flex:1}
+.tools{display:flex;gap:2px}
+.tools button{border:none;background:transparent;width:26px;height:26px;border-radius:6px;color:var(--muted)}
+.tools button:hover{background:#F1ECE4;color:var(--ink)}
+
+.status-msg{display:flex;align-items:center;gap:10px;font-weight:500}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:pulse 1s infinite;flex:none}
+@keyframes pulse{50%{opacity:.3;transform:scale(.8)}}
+.progress{height:6px;background:#E9E3D9;border-radius:99px;overflow:hidden;margin:12px 0 18px}
+.progress div{height:100%;background:var(--accent);transition:width .4s}
+.gen-list{list-style:none;padding:0;margin:0;display:grid;gap:4px}
+.gen-list li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--muted)}
+.gen-list li em{margin-left:auto;font-style:normal;font-size:12px}
+.gen-list li .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid #BDB5A8;flex:none}
+.gen-list li.writing{background:var(--accent-soft);color:var(--ink)}
+.gen-list li.writing .dot{background:var(--accent);border-color:var(--accent);animation:pulse 1s infinite}
+.gen-list li.done{color:var(--ink)}
+.gen-list li.done .dot{background:var(--ok);border-color:var(--ok)}
+.hint{background:#F1ECE4;border-radius:var(--r);padding:10px 12px;font-size:14px}
+
+.chapter-text p{font-family:Newsreader,serif;font-size:17px;line-height:1.6;margin:0 0 12px}
+.chapter-text.changed p{background:linear-gradient(transparent 60%, #F7DCC9 60%)}
+.rewrite{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.caret{display:inline-block;width:2px;height:1em;background:var(--accent);vertical-align:-2px;margin-left:2px;animation:pulse .8s infinite}
+
+/* V1 wizard */
+.wiz{max-width:760px;margin:0 auto;padding:28px 24px 80px}
+.wiz.wide{max-width:1120px}
+.stepper{display:flex;gap:6px;margin-bottom:34px}
+.stepper div{flex:1;font-size:13px;color:var(--muted);border-top:3px solid #DDD6CA;padding-top:8px}
+.stepper div.on{color:var(--ink);border-color:var(--ink);font-weight:600}
+.stepper div.done{border-color:var(--ink)}
+.review-grid{display:grid;grid-template-columns:240px 260px 1fr;gap:16px;align-items:start}
+.cover-wrap{width:100%;aspect-ratio:2/3;border-radius:4px;overflow:hidden;box-shadow:0 14px 30px -14px rgba(40,25,10,.5);margin:10px 0 12px}
+.cover-wrap.lg{width:260px}
+.toc{padding-left:20px;margin:10px 0 0;font-size:14px}
+.toc li{margin-bottom:6px}
+.publish{display:flex;gap:40px;align-items:flex-start}
+.sharecard{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--surface);margin:18px 0;max-width:420px}
+.sharecard .mini{width:54px;flex:none;aspect-ratio:2/3;border-radius:3px;overflow:hidden}
+.sharecard small{display:block;color:var(--muted)}
+
+/* split layouts (V2, V3) */
+.split{display:grid;grid-template-columns:420px 1fr;min-height:calc(100vh - 52px)}
+.panel{padding:26px 26px 60px;border-right:1px solid var(--line);background:var(--bg);overflow:auto;max-height:calc(100vh - 52px);position:sticky;top:52px}
+.panel h1{font-size:28px}
+.desk{background:radial-gradient(ellipse at 50% 40%, #EFE8DC 0%, #E2D8C8 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:40px;position:relative}
+.desk-meta{font-size:13px;color:#6B6155;letter-spacing:.02em}
+
+.book{position:relative;width:260px;height:390px;transform:perspective(1600px) rotateY(-14deg) rotateX(2deg);transition:transform .6s}
+.book .pages{position:absolute;top:5px;bottom:5px;left:calc(100% - 3px);width:var(--thick,4px);background:repeating-linear-gradient(90deg,#FBF8F1 0 2px,#E2D9C9 2px 3px);border-radius:0 3px 3px 0;box-shadow:8px 12px 22px rgba(40,25,10,.18);transition:width .6s}
+.book .cover{position:relative;width:100%;height:100%;border-radius:2px 5px 5px 2px;overflow:hidden;box-shadow:0 34px 60px -24px rgba(40,25,10,.55)}
+.book .cover::after{content:"";position:absolute;left:9px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.08)}
+.book.flat{transform:none}
+.cover-svg{display:block;width:100%;height:100%}
+
+.spread{display:flex;width:min(720px,100%);height:470px;background:#FBF8F2;border-radius:4px;box-shadow:0 34px 70px -28px rgba(40,25,10,.6);position:relative}
+.spread::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:36px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(0,0,0,.08),transparent);pointer-events:none}
+.page{flex:1;padding:36px 32px;overflow:auto;font-family:Newsreader,serif;font-size:14.5px;line-height:1.6;color:#2A241D}
+.page .eyebrow{font-family:"Instrument Sans";margin-bottom:6px}
+.page h4{font-family:Fraunces,serif;font-size:21px;font-weight:600;margin:0 0 14px;line-height:1.2}
+.page p{margin:0 0 10px}
+.page .first::first-letter{font-family:Fraunces;font-size:44px;float:left;line-height:.9;padding:4px 6px 0 0;color:var(--accent)}
+.page-toc{list-style:none;padding:0;margin:0}
+.page-toc li{display:flex;gap:10px;padding:7px 0;border-bottom:1px dotted #D8CFBF;color:#9A9184;transition:color .3s}
+.page-toc li.done,.page-toc li.writing{color:#2A241D}
+.page-toc li b{font-family:Fraunces;font-weight:600;width:18px}
+.page-toc li i{margin-left:auto;font-style:normal;font-family:"Instrument Sans";font-size:11px;color:var(--muted)}
+.page-toc li.writing i{color:var(--accent)}
+.page.changed p{background:linear-gradient(transparent 60%, #F7DCC9 60%)}
+
+.tabbar{display:flex;gap:4px;background:#ECE6DC;padding:4px;border-radius:999px;margin:14px 0 18px}
+.tabbar button{flex:1;border:none;background:transparent;border-radius:999px;padding:7px 10px;font-size:14px}
+.tabbar button.on{background:var(--surface);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.swatches{display:flex;gap:10px;margin-top:10px}
+.swatch{border:1.5px solid var(--line);border-radius:12px;padding:8px;background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;width:96px}
+.swatch .sw{width:100%;height:38px;border-radius:6px}
+.swatch.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+
+/* V2 chat */
+.chat-panel{display:flex;flex-direction:column;border-right:1px solid var(--line);height:calc(100vh - 52px);position:sticky;top:52px;background:var(--surface)}
+.msgs{flex:1;overflow:auto;padding:22px 20px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:10px 14px;border-radius:16px;font-size:14.5px}
+.msg.ai{background:#F1ECE4;border-bottom-left-radius:4px;align-self:flex-start}
+.msg.me{background:var(--ink);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.typing{align-self:flex-start;color:var(--muted);font-size:13px;padding:4px 6px}
+.quick{display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 10px}
+.composer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+.composer input{flex:1;border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;font:inherit}
+.composer input:focus{outline:none;border-color:var(--ink)}
+.canvas{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;justify-content:center;width:100%;max-width:900px}
+.canvas .card{max-width:420px;flex:1;min-width:300px}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1D1A16;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+#toast.on{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Flow spike<span>throwaway · fixed demo book · visuals not final</span></div>
+  <nav class="tabs">
+    <button data-tab="v1" class="on">1 · Compact wizard</button>
+    <button data-tab="v2">2 · Chat co-author</button>
+    <button data-tab="v3">3 · Growing book</button>
+  </nav>
+  <button class="reset" id="reset">Restart</button>
+</header>
+<main>
+  <section id="v1" class="view on"></section>
+  <section id="v2" class="view"></section>
+  <section id="v3" class="view"></section>
+</main>
+<div id="toast"></div>
+
+<script>
+/* ---------- demo content ---------- */
+const DEMO_IDEA = 'A simple sourdough guide for people with full-time jobs';
+const TITLES = [
+  {t:'Sourdough for Busy People', s:'Real bread on a weeknight schedule'},
+  {t:'The 20-Minute Loaf', s:'Sourdough in the gaps of a full day'},
+  {t:'Bread Without the Fuss', s:'A calm beginner’s guide to sourdough'}
+];
+const BASE_OUTLINE = [
+  'Why Sourdough Fits a Busy Life',
+  'Your Starter in Five Minutes a Day',
+  'The Weeknight Bake Schedule',
+  'Shaping Without the Stress',
+  'Fixing Flat, Dense and Sour Loaves',
+  'Beyond the Basic Loaf'
+];
+const EXTRA_CHAPTER = 'Bonus: Recipes for Leftover Starter';
+const CH1 = {
+  full:[
+    'Most people think sourdough needs a free weekend and a baker’s patience. It doesn’t. What it needs is a rhythm — a few minutes here and there that fit around the life you already have.',
+    'The secret is that sourdough does most of its work while you’re away. Fermentation is slow on purpose. While you sleep, commute or sit in meetings, wild yeast is quietly building the flavour and structure you could never rush.',
+    'This guide gives you a schedule built around a nine-to-five day: ten minutes in the morning, fifteen in the evening, and a bake that’s done before dinner. No special equipment beyond a pot with a lid. No guilt if you miss a feed.'
+  ],
+  short:[
+    'Sourdough doesn’t need a free weekend — just a rhythm. Fermentation works while you’re away, so this guide fits real bread into a nine-to-five day: ten minutes in the morning, fifteen at night, one pot with a lid.'
+  ]
+};
+const OPTS = {
+  audience:['Busy beginners','Home bakers','Parents with little time'],
+  tone:['Warm & practical','Playful','Straight to the point'],
+  length:['Short guide · 6 chapters','Mini guide · 4 chapters','Full guide · 8 chapters']
+};
+const PALETTES = [
+  {name:'Flour & crust', bg:'#E8D9C0', ink:'#2A1C12', loaf:'#B8692F', score:'#F3E6CF'},
+  {name:'Forest', bg:'#1F3A2E', ink:'#F1E8D6', loaf:'#D9A55B', score:'#1F3A2E'},
+  {name:'Night bake', bg:'#1B1F33', ink:'#F2D48A', loaf:'#E1B562', score:'#1B1F33'}
+];
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let epoch = 0;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),1800); }
+function wrap(text,max){ const out=[]; let cur=''; for(const w of text.split(/\s+/)){ if(cur && (cur+' '+w).length>max){out.push(cur);cur=w;} else cur=(cur?cur+' ':'')+w; } if(cur) out.push(cur); return out.slice(0,4); }
+function pages(n){ return n*5+2; }
+
+function coverSVG({stage='final', title='', sub='', pal=0}={}){
+  if(stage==='empty') return `<svg viewBox="0 0 300 450" class="cover-svg"><rect x="1" y="1" width="298" height="448" rx="4" fill="#FBF9F5" stroke="#CFC7BA" stroke-width="2" stroke-dasharray="7 7"/><text x="150" y="232" text-anchor="middle" font-family="Instrument Sans" font-size="15" fill="#9A9184">Your book will appear here</text></svg>`;
+  const p = PALETTES[pal % PALETTES.length];
+  const sk = stage==='sketch';
+  const bg = sk?'#F3EFE8':p.bg, ink = sk?'#A79F92':p.ink, loaf = sk?'none':p.loaf, score = sk?'#B9B0A2':p.score;
+  const dash = sk ? 'stroke-dasharray="5 7"' : '';
+  const lines = title ? wrap(title,12) : [];
+  const titleSVG = lines.length
+    ? lines.map((l,i)=>`<text x="26" y="${76+i*39}" font-family="Fraunces" font-weight="600" font-size="34" fill="${ink}">${esc(l)}</text>`).join('')
+    : `<rect x="26" y="50" width="190" height="24" rx="4" fill="#DDD6CA"/><rect x="26" y="86" width="130" height="24" rx="4" fill="#DDD6CA"/>`;
+  const subY = 76 + Math.max(lines.length,2)*39 - 8;
+  const subSVG = (sub && !sk) ? `<text x="26" y="${subY}" font-family="Instrument Sans" font-size="12.5" fill="${ink}" opacity=".8">${esc(sub)}</text>` : '';
+  const sc = (d)=>`<path d="${d}" stroke="${score}" stroke-width="6" fill="none" stroke-linecap="round" ${dash}/>`;
+  return `<svg viewBox="0 0 300 450" class="cover-svg">
+    <rect width="300" height="450" fill="${bg}"/>
+    <circle cx="150" cy="322" r="90" fill="${loaf}" stroke="${sk?'#B9B0A2':'none'}" stroke-width="2" ${dash}/>
+    ${sc('M100 294 Q150 268 200 294')}${sc('M90 324 Q150 296 210 324')}${sc('M100 354 Q150 326 200 354')}
+    ${titleSVG}${subSVG}
+    <text x="26" y="432" font-family="Instrument Sans" font-size="10.5" letter-spacing="2" fill="${ink}" opacity="${sk?'.6':'.85'}">ALEX MORGAN</text>
+  </svg>`;
+}
+
+function runGen(target, outline, rerender, onDone){
+  const my = epoch;
+  target.gen = {statuses: outline.map(()=> 'queued'), streamed:'', done:false, msg:'Planning how the chapters connect…'};
+  rerender();
+  let idx = 0;
+  const full = CH1.full.join('\n\n');
+  function next(){
+    if(my!==epoch) return;
+    if(idx>=outline.length){ target.gen.done=true; target.gen.msg='All chapters written'; rerender(); onDone&&onDone(); return; }
+    target.gen.statuses[idx]='writing';
+    target.gen.msg = `Writing chapter ${idx+1} of ${outline.length}: ${outline[idx]}…`;
+    rerender();
+    if(idx===0){
+      let c=0;
+      const t=setInterval(()=>{
+        if(my!==epoch){clearInterval(t);return;}
+        c+=7; target.gen.streamed=full.slice(0,c); rerender();
+        if(c>=full.length){ clearInterval(t); target.gen.statuses[0]='done'; idx++; setTimeout(next,300); }
+      },45);
+    } else {
+      setTimeout(()=>{ if(my!==epoch) return; target.gen.statuses[idx]='done'; idx++; next(); }, 1100);
+    }
+  }
+  setTimeout(next, 1100);
+}
+const statusLabel = st => st==='done'?'Done':st==='writing'?'Writing…':'Queued';
+const paras = text => text.split('\n\n').map((p,i)=>`<p class="${i===0?'first':''}">${esc(p)}</p>`).join('');
+
+/* ---------- shared flow state for V1 + V3 ---------- */
+function newFlow(){
+  return {step:1, idea:'', clarify:false, understood:false, chips:{audience:0,tone:0,length:0}, story:'',
+          title:0, custom:'', outline:[...BASE_OUTLINE], gen:null, ch1:'full', ch1Prev:'full', changed:false, pal:0, tab:'chapter'};
+}
+const titleOf = s => s.custom.trim() ? {t:s.custom.trim(), s:TITLES[0].s} : TITLES[s.title];
+
+function ideaControls(s){
+  const aud=OPTS.audience[s.chips.audience], tone=OPTS.tone[s.chips.tone], len=OPTS.length[s.chips.length];
+  return `
+  <div class="step-head"><span class="eyebrow">Step 1 of 4 · Idea</span><h1>What’s your book about?</h1>
+  <p class="lead">One sentence is enough. Mention who it’s for if you can.</p></div>
+  <textarea class="input big" data-bind="idea" rows="3" placeholder="e.g. ${esc(DEMO_IDEA)}">${esc(s.idea)}</textarea>
+  <div class="examples">Try: <button class="link" data-act="example">${esc(DEMO_IDEA)}</button> · or something vague like “bread”</div>
+  ${s.clarify ? `<div class="notice"><strong>Tell me a bit more.</strong> “${esc(s.idea)}” could become many different books. Who is it for?
+    <div class="chips">${['Busy beginners with full-time jobs','Experienced home bakers','Parents baking with kids'].map(o=>`<button class="chip" data-act="clarify" data-v="${o}">${o}</button>`).join('')}</div></div>` : ''}
+  ${s.understood ? `<div class="card">
+    <div class="eyebrow">Here’s what I’ll make</div>
+    <p class="restate">A ${tone.toLowerCase()} ${len.split(' · ')[0].toLowerCase()} on sourdough baking for ${aud.toLowerCase()}.</p>
+    <div class="chips">
+      <span class="chip static">Topic · Sourdough baking</span>
+      <button class="chip" data-act="cycle" data-k="audience">Audience · ${aud} ↻</button>
+      <button class="chip" data-act="cycle" data-k="tone">Tone · ${tone} ↻</button>
+      <button class="chip" data-act="cycle" data-k="length">${len} ↻</button>
+    </div>
+    <label class="field-label">Add a tip or story only you know <span>(optional — makes it sound like you)</span></label>
+    <textarea class="input" data-bind="story" rows="2" placeholder="e.g. I bake before my 8am commute — the trick is an overnight rise in the fridge">${esc(s.story)}</textarea>
+    <div class="row"><button class="btn primary" data-act="next">Looks right — next</button></div>
+  </div>` : `<button class="btn primary" data-act="analyze">Continue</button>`}`;
+}
+
+function shapeControls(s, compact){
+  return `
+  <div class="step-head"><span class="eyebrow">Step 2 of 4 · Shape</span><h1>Pick a title and check the plan</h1>
+  <p class="lead">Nothing is written yet, so changes here are free.</p></div>
+  <div class="titles">
+    ${TITLES.map((t,i)=>`<button class="title-opt ${!s.custom.trim()&&s.title===i?'on':''}" data-act="title" data-i="${i}"><strong>${t.t}</strong><span>${t.s}</span></button>`).join('')}
+    <div class="title-opt custom ${s.custom.trim()?'on':''}"><input class="input" data-bind="custom" placeholder="Or write your own title" value="${esc(s.custom)}"></div>
+  </div>
+  <h3>Chapters <span class="muted" style="font-family:Instrument Sans;font-weight:400">· ${s.outline.length} chapters · ~${pages(s.outline.length)} pages</span></h3>
+  <ol class="outline">${s.outline.map((c,i)=>`<li><span class="num">${i+1}</span><span class="ctitle">${esc(c)}</span><span class="tools">
+    <button data-act="up" data-i="${i}" title="Move up">↑</button><button data-act="down" data-i="${i}" title="Move down">↓</button><button data-act="del" data-i="${i}" title="Remove">×</button></span></li>`).join('')}</ol>
+  ${s.outline.includes(EXTRA_CHAPTER)?'':`<div class="row" style="margin-top:10px"><button class="link" data-act="add">+ Add a chapter</button></div>`}
+  <div class="row"><button class="btn ghost" data-act="back">Back</button><button class="btn primary" data-act="write">Write my book</button></div>`;
+}
+
+function genList(s){
+  return `<ol class="gen-list">${s.outline.map((c,i)=>{const st=s.gen.statuses[i]; return `<li class="${st}"><span class="dot"></span>${esc(c)}<em>${statusLabel(st)}</em></li>`;}).join('')}</ol>`;
+}
+function genPct(s){ const d=s.gen.statuses.filter(x=>x==='done').length; return Math.round((d + (s.gen.statuses.includes('writing')?.5:0))/s.outline.length*100); }
+function rewriteControls(s){
+  return s.changed
+    ? `<div class="notice ok" style="width:100%">Chapter 1 shortened: 3 paragraphs → 1. Changes are highlighted.
+        <div class="row" style="margin-top:10px"><button class="btn primary sm" data-act="keep">Keep</button><button class="btn ghost sm" data-act="undo">Undo</button></div></div>`
+    : `<span class="muted" style="font-size:14px">Adjust chapter 1:</span>
+       <button class="chip" data-act="shorter" ${s.ch1==='short'?'disabled':''}>Shorter</button>
+       <button class="chip" data-act="na">Simpler</button><button class="chip" data-act="na">Add an example</button><button class="chip" data-act="na">Warmer tone</button>`;
+}
+
+/* shared click handling for V1 + V3 */
+function flowAction(s, act, el, render){
+  const i = +el.dataset.i;
+  switch(act){
+    case 'example': s.idea = DEMO_IDEA; s.clarify=false; s.understood=true; break;
+    case 'analyze': {
+      const words = s.idea.trim().split(/\s+/).filter(Boolean).length;
+      if(words<4){ s.clarify=true; s.understood=false; if(!s.idea.trim()) s.idea='Sourdough'; }
+      else { s.clarify=false; s.understood=true; }
+      break; }
+    case 'clarify': s.idea = s.idea.trim()+' for '+el.dataset.v.toLowerCase(); s.clarify=false; s.understood=true; break;
+    case 'cycle': { const k=el.dataset.k; s.chips[k]=(s.chips[k]+1)%OPTS[k].length; break; }
+    case 'next': s.step=2; break;
+    case 'title': s.title=i; s.custom=''; break;
+    case 'up': if(i>0){ [s.outline[i-1],s.outline[i]]=[s.outline[i],s.outline[i-1]]; } break;
+    case 'down': if(i<s.outline.length-1){ [s.outline[i+1],s.outline[i]]=[s.outline[i],s.outline[i+1]]; } break;
+    case 'del': if(s.outline.length>3) s.outline.splice(i,1); else toast('A book needs at least 3 chapters'); break;
+    case 'add': s.outline.push(EXTRA_CHAPTER); break;
+    case 'back': s.step = Math.max(1, s.step-1); if(s.step===2) s.gen=null; break;
+    case 'write': s.step=3; s.tab='chapter'; runGen(s, s.outline, render); return;
+    case 'shorter': s.ch1Prev=s.ch1; s.ch1='short'; s.changed=true; break;
+    case 'keep': s.changed=false; break;
+    case 'undo': s.ch1=s.ch1Prev; s.changed=false; break;
+    case 'na': toast('Same pattern as “Shorter” — not wired in this spike'); return;
+    case 'style': s.pal=(s.pal+1)%PALETTES.length; break;
+    case 'pal': s.pal=i; break;
+    case 'tab': s.tab=el.dataset.v; break;
+    case 'finish': s.step=4; break;
+    case 'edit': s.step=3; break;
+    case 'pdf': toast('Would download “'+titleOf(s).t+'.pdf”'); return;
+    case 'link': toast('Link copied: ebook.app/b/sourdough-for-busy-people'); return;
+  }
+  render();
+}
+function bindInputs(root, s, onInput){
+  root.addEventListener('input', e=>{
+    const k = e.target.dataset && e.target.dataset.bind; if(!k) return;
+    s[k] = e.target.value;
+    if(k==='custom') root.querySelectorAll('.title-opt').forEach(b=>b.classList.toggle('on', b.classList.contains('custom') ? !!s.custom.trim() : (!s.custom.trim() && +b.dataset.i===s.title)));
+    onInput && onInput();
+  });
+}
+
+/* ---------- V1: compact wizard ---------- */
+let v1 = newFlow();
+const V1 = document.getElementById('v1');
+function stepper(step){
+  const names=['Idea','Shape','Your book','Publish'];
+  return `<div class="stepper">${names.map((n,i)=>`<div class="${i+1===step?'on':i+1<step?'done':''}">${i+1} · ${n}</div>`).join('')}</div>`;
+}
+function renderV1(){
+  const s=v1; let body='';
+  if(s.step===1) body = ideaControls(s);
+  else if(s.step===2) body = shapeControls(s);
+  else if(s.step===3 && !s.gen.done){
+    body = `<div class="step-head"><span class="eyebrow">Step 3 of 4 · Writing</span><h1>Writing your book</h1>
+      <p class="lead">This takes about a minute. You’ll be able to review everything before it’s final.</p></div>
+      <p class="status-msg"><span class="pulse"></span>${esc(s.gen.msg)}</p>
+      <div class="progress"><div style="width:${genPct(s)}%"></div></div>${genList(s)}`;
+  } else if(s.step===3){
+    const t=titleOf(s);
+    body = `<div class="step-head"><span class="eyebrow">Step 3 of 4 · Review</span><h1>Your book is ready to review</h1>
+      <p class="lead">Check the cover, the plan and the first chapter. Nothing is final yet.</p></div>
+      <div class="review-grid">
+        <div class="card"><div class="eyebrow">Cover</div><div class="cover-wrap">${coverSVG({title:t.t,sub:t.s,pal:s.pal})}</div>
+          <button class="btn ghost sm" data-act="style">Try another style</button><div class="muted" style="font-size:13px;margin-top:6px">${PALETTES[s.pal].name}</div></div>
+        <div class="card"><div class="eyebrow">Structure</div><ol class="toc">${s.outline.map(c=>`<li>${esc(c)}</li>`).join('')}</ol></div>
+        <div class="card"><div class="eyebrow">Chapter 1</div><h2 style="margin:6px 0 12px">${esc(s.outline[0])}</h2>
+          <div class="chapter-text ${s.changed?'changed':''}">${CH1[s.ch1].map(p=>`<p>${esc(p)}</p>`).join('')}</div>
+          <div class="rewrite">${rewriteControls(s)}</div></div>
+      </div>
+      <div class="row"><button class="btn primary" data-act="finish">Finish book</button></div>`;
+  } else {
+    const t=titleOf(s);
+    body = `<div class="step-head"><span class="eyebrow">Step 4 of 4 · Publish</span><h1>Your book is ready</h1></div>
+      <div class="publish"><div class="cover-wrap lg">${coverSVG({title:t.t,sub:t.s,pal:s.pal})}</div>
+      <div><h2>${esc(t.t)}</h2><p class="muted">${s.outline.length} chapters · ~${pages(s.outline.length)} pages · by Alex Morgan</p>
+        <div class="row"><button class="btn primary" data-act="pdf">Download PDF</button><button class="btn ghost" data-act="link">Copy share link</button></div>
+        <div class="sharecard"><div class="mini">${coverSVG({title:t.t,pal:s.pal})}</div><div><strong>${esc(t.t)}</strong><small>A free eBook by Alex Morgan</small><small>ebook.app/b/sourdough-for-busy-people</small></div></div>
+        <button class="link" data-act="edit">← Back to edit</button></div></div>`;
+  }
+  V1.innerHTML = `<div class="wiz ${s.step===3&&s.gen&&s.gen.done?'wide':''}">${stepper(s.step)}${body}</div>`;
+}
+V1.addEventListener('click', e=>{ const el=e.target.closest('[data-act]'); if(el) flowAction(v1, el.dataset.act, el, renderV1); });
+bindInputs(V1, v1);
+
+/* ---------- V3: growing book ---------- */
+let v3 = newFlow();
+const V3 = document.getElementById('v3');
+function bookClosed(s, stage){
+  const t=titleOf(s);
+  const thick = s.step===1 ? 4 : 6 + s.outline.length*3;
+  const cover = stage==='empty' ? coverSVG({stage:'empty'}) : coverSVG({stage, title: stage==='sketch'?'':t.t, sub:t.s, pal:s.pal});
+  return `<div class="book" style="--thick:${thick}px"><div class="pages"></div><div class="cover">${cover}</div></div>`;
+}
+function bookSpread(s){
+  const g=s.gen;
+  const tocItems = s.outline.map((c,i)=>{const st=g?g.statuses[i]:'done'; return `<li class="${st}"><b>${i+1}</b>${esc(c)}<i>${g&&!g.done?statusLabel(st):'p. '+(3+i*5)}</i></li>`;}).join('');
+  const writing = g && !g.done;
+  let right;
+  if(writing && !g.streamed) right = `<div class="eyebrow">Chapter 1</div><h4>${esc(s.outline[0])}</h4><p style="color:#9A9184">Starting to write<span class="caret"></span></p>`;
+  else if(writing && g.statuses[0]==='writing') right = `<div class="eyebrow">Chapter 1</div><h4>${esc(s.outline[0])}</h4>${paras(g.streamed)}<span class="caret"></span>`;
+  else right = `<div class="eyebrow">Chapter 1</div><h4>${esc(s.outline[0])}</h4>${CH1[s.ch1].map((p,i)=>`<p class="${i===0?'first':''}">${esc(p)}</p>`).join('')}`;
+  return `<div class="spread"><div class="page"><div class="eyebrow">Contents</div><h4>${esc(titleOf(s).t)}</h4><ol class="page-toc">${tocItems}</ol></div>
+    <div class="page ${s.changed?'changed':''}">${right}</div></div>`;
+}
+function v3Preview(){
+  const s=v3; let html='', meta='';
+  const aud=OPTS.audience[s.chips.audience];
+  if(s.step===1){
+    html = bookClosed(s, s.understood ? 'sketch' : 'empty');
+    meta = s.understood ? `Sourdough · for ${aud.toLowerCase()} · ~6 chapters · cover sketch` : 'Start typing — your book takes shape here';
+  } else if(s.step===2){
+    html = bookClosed(s,'final'); meta = `${s.outline.length} chapters · ~${pages(s.outline.length)} pages`;
+  } else if(s.step===3){
+    if(s.gen.done && s.tab==='cover'){ html = bookClosed(s,'final'); meta = PALETTES[s.pal].name; }
+    else { html = bookSpread(s); meta = s.gen.done ? 'Click any chapter in the contents to read it (not in spike)' : 'Chapter 1 appears first — start reading while the rest is written'; }
+  } else {
+    html = bookClosed(s,'final');
+    meta = `Ready · ${s.outline.length} chapters · ~${pages(s.outline.length)} pages`;
+  }
+  return html + `<div class="desk-meta">${meta}</div>`;
+}
+function v3Controls(){
+  const s=v3;
+  if(s.step===1) return ideaControls(s);
+  if(s.step===2) return shapeControls(s);
+  if(s.step===3 && !s.gen.done) return `
+    <div class="step-head"><span class="eyebrow">Step 3 of 4 · Writing</span><h1>Writing your book</h1></div>
+    <p class="status-msg"><span class="pulse"></span>${esc(s.gen.msg)}</p>
+    <div class="progress"><div style="width:${genPct(s)}%"></div></div>
+    <p class="hint">→ Chapter 1 is appearing in the book. Start reading while the rest is written.</p>`;
+  if(s.step===3){
+    const tabs = [['cover','Cover'],['structure','Structure'],['chapter','Chapter 1']];
+    let panel='';
+    if(s.tab==='cover') panel = `<p class="muted" style="margin:0">Same book, different design direction.</p><div class="swatches">${PALETTES.map((p,i)=>`<button class="swatch ${s.pal===i?'on':''}" data-act="pal" data-i="${i}"><span class="sw" style="background:linear-gradient(135deg,${p.bg} 55%,${p.loaf} 55%)"></span>${p.name}</button>`).join('')}</div>`;
+    if(s.tab==='structure') panel = `<p class="muted" style="margin:0 0 10px">Reorder chapters — the contents page updates.</p><ol class="outline">${s.outline.map((c,i)=>`<li><span class="num">${i+1}</span><span class="ctitle">${esc(c)}</span><span class="tools"><button data-act="up" data-i="${i}">↑</button><button data-act="down" data-i="${i}">↓</button></span></li>`).join('')}</ol>`;
+    if(s.tab==='chapter') panel = `<div class="rewrite" style="margin-top:0">${rewriteControls(s)}</div>`;
+    return `<div class="step-head"><span class="eyebrow">Step 3 of 4 · Review</span><h1>Review & adjust</h1>
+      <p class="lead">Your book is written. Fix anything — nothing is final yet.</p></div>
+      <div class="tabbar">${tabs.map(([k,n])=>`<button class="${s.tab===k?'on':''}" data-act="tab" data-v="${k}">${n}</button>`).join('')}</div>
+      ${panel}
+      <div class="row"><button class="btn primary" data-act="finish">Finish book</button></div>`;
+  }
+  const t=titleOf(s);
+  return `<div class="step-head"><span class="eyebrow">Step 4 of 4 · Publish</span><h1>Your book is ready</h1>
+    <p class="lead">${esc(t.t)} · ${s.outline.length} chapters · by Alex Morgan</p></div>
+    <div class="row" style="margin-top:0"><button class="btn primary" data-act="pdf">Download PDF</button><button class="btn ghost" data-act="link">Copy share link</button></div>
+    <div class="sharecard"><div class="mini">${coverSVG({title:t.t,pal:s.pal})}</div><div><strong>${esc(t.t)}</strong><small>A free eBook by Alex Morgan</small><small>ebook.app/b/sourdough-for-busy-people</small></div></div>
+    <button class="link" data-act="edit">← Back to edit</button>`;
+}
+function renderV3(){
+  V3.innerHTML = `<div class="split"><aside class="panel">${v3Controls()}</aside><div class="desk" id="v3desk">${v3Preview()}</div></div>`;
+}
+function renderV3Preview(){ const d=document.getElementById('v3desk'); if(d) d.innerHTML=v3Preview(); }
+V3.addEventListener('click', e=>{ const el=e.target.closest('[data-act]'); if(el) flowAction(v3, el.dataset.act, el, renderV3); });
+bindInputs(V3, v3, renderV3Preview);
+
+/* ---------- V2: chat co-author ---------- */
+const V2 = document.getElementById('v2');
+let v2;
+function newChat(){ return {step:'topic', msgs:[], quick:[], typing:false, cv:{stage:'empty', title:null, outline:null, gen:null, ch1:'full', changed:false, pal:0, published:false}}; }
+const REVIEW_Q = ['Make chapter 1 shorter','Try a different cover style','Publish it'];
+function renderV2(){
+  V2.innerHTML = `<div class="split"><aside class="chat-panel"><div class="msgs" id="msgs"></div><div class="quick" id="quick"></div>
+    <form class="composer" id="composer"><input id="chatIn" placeholder="Type a message…" autocomplete="off"><button class="btn primary sm">Send</button></form></aside>
+    <div class="desk" id="v2desk"></div></div>`;
+  document.getElementById('composer').addEventListener('submit', e=>{ e.preventDefault(); const inp=document.getElementById('chatIn'); const v=inp.value.trim(); if(!v||v2.typing) return; inp.value=''; me(v); });
+  renderMsgs(); renderCanvas();
+}
+function renderMsgs(){
+  const m=document.getElementById('msgs'); if(!m) return;
+  m.innerHTML = v2.msgs.map(x=>`<div class="msg ${x.from}">${esc(x.text)}</div>`).join('') + (v2.typing?'<div class="typing">Co-author is typing…</div>':'');
+  m.scrollTop = m.scrollHeight;
+  document.getElementById('quick').innerHTML = v2.quick.map(q=>`<button class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join('');
+}
+function renderCanvas(){
+  const d=document.getElementById('v2desk'); if(!d) return; const c=v2.cv;
+  if(c.stage==='empty'){ d.innerHTML = `<div class="book flat"><div class="cover">${coverSVG({stage:'empty'})}</div></div><div class="desk-meta">Your book will build up here as we talk</div>`; return; }
+  const t = c.title || {t:'',s:''};
+  const book = `<div><div class="book" style="--thick:${c.outline?6+c.outline.length*3:4}px"><div class="pages"></div><div class="cover">${coverSVG({stage:c.stage, title:t.t, sub:t.s, pal:c.pal})}</div></div></div>`;
+  let doc='';
+  if(c.outline){
+    const g=c.gen;
+    doc += `<div class="card"><div class="eyebrow">Outline</div><ol class="gen-list" style="margin-top:8px">${c.outline.map((ch,i)=>{const st=g?g.statuses[i]:'queued'; return `<li class="${g?st:''}"><span class="dot"></span>${esc(ch)}${g?`<em>${statusLabel(st)}</em>`:''}</li>`;}).join('')}</ol>`;
+    if(g && (g.streamed || g.done)){
+      const text = g.done ? CH1[c.ch1].map(p=>`<p>${esc(p)}</p>`).join('') : g.streamed.split('\n\n').map(p=>`<p>${esc(p)}</p>`).join('')+'<span class="caret"></span>';
+      doc += `<h3 style="margin-top:18px">${esc(c.outline[0])}</h3><div class="chapter-text ${c.changed?'changed':''}">${text}</div>`;
+    }
+    if(c.published) doc += `<div class="notice ok"><strong>Published.</strong><div class="row" style="margin-top:10px"><button class="btn primary sm" onclick="toast('Would download PDF')">Download PDF</button><button class="btn ghost sm" onclick="toast('Link copied')">Copy share link</button></div></div>`;
+    doc += `</div>`;
+  }
+  d.innerHTML = `<div class="canvas">${book}${doc}</div>`;
+}
+function ai(text, quick, after){
+  const my=epoch; v2.typing=true; v2.quick=[]; renderMsgs();
+  setTimeout(()=>{ if(my!==epoch) return; v2.typing=false; v2.msgs.push({from:'ai',text}); v2.quick=quick||[]; after&&after(); renderMsgs(); renderCanvas(); }, 750);
+}
+function me(text){ v2.msgs.push({from:'me',text}); v2.quick=[]; renderMsgs(); handle(text); }
+function understood(){
+  v2.step='confirm';
+  ai('Here’s what I understood: a warm, practical short guide (about 6 chapters) on sourdough for busy beginners. Sound right?', ['Yes, that’s it','Make it more playful'], ()=>{ v2.cv.stage='sketch'; });
+}
+function handle(text){
+  const low=text.toLowerCase(); const c=v2.cv;
+  switch(v2.step){
+    case 'topic':
+      if(text.split(/\s+/).length<4){ v2.step='clarify'; ai('Happy to help! “'+text+'” could be many books — who is it for?', ['Busy beginners with full-time jobs','Experienced home bakers','Parents baking with kids']); }
+      else understood(); break;
+    case 'clarify': understood(); break;
+    case 'confirm':
+      v2.step='title'; ai('Great. Here are three title ideas — pick one, or type your own.', TITLES.map(t=>t.t)); break;
+    case 'title': {
+      const found = TITLES.find(t=>t.t.toLowerCase()===low) || {t:text, s:TITLES[0].s};
+      v2.step='outline';
+      ai(`“${found.t}” — nice. I’ve drafted a 6-chapter outline (on the right). Want to change anything before I write?`, ['Looks good — write it','Remove the last chapter'], ()=>{ c.title=found; c.stage='final'; c.outline=[...BASE_OUTLINE]; });
+      break; }
+    case 'outline':
+      if(low.includes('remove')){ ai('Done — '+(c.outline.length-1)+' chapters now. Ready to write?', ['Write it'], ()=>{ c.outline.pop(); }); }
+      else {
+        v2.step='writing';
+        ai('Writing now. Chapter 1 will appear first so you can start reading.', [], ()=>{
+          runGen(c, c.outline, renderCanvas, ()=>{ v2.step='review'; ai('Your book is written. Read chapter 1 on the right — anything you’d like to change?', REVIEW_Q); });
+        });
+      }
+      break;
+    case 'review':
+      if(low.includes('short')){ v2.step='rewrite'; ai('I shortened chapter 1 from 3 paragraphs to 1 — changes are highlighted. Keep it?', ['Keep','Undo'], ()=>{ c.ch1='short'; c.changed=true; }); }
+      else if(low.includes('cover')){ ai('Switched to the “'+PALETTES[(c.pal+1)%3].name+'” style. Anything else?', REVIEW_Q, ()=>{ c.pal=(c.pal+1)%3; }); }
+      else if(low.includes('publish')){ v2.step='done'; ai('Your book is ready! Download the PDF or share the link on the right.', [], ()=>{ c.published=true; }); }
+      else ai('I’m not sure I can do that yet. Try one of these:', REVIEW_Q);
+      break;
+    case 'rewrite':
+      v2.step='review';
+      ai(low.includes('undo')?'Restored the original chapter 1. Anything else?':'Kept the shorter version. Anything else?', REVIEW_Q, ()=>{ if(low.includes('undo')) c.ch1='full'; c.changed=false; });
+      break;
+    default: ai('I’m on it — one moment.', v2.quick);
+  }
+}
+V2.addEventListener('click', e=>{ const q=e.target.closest('[data-q]'); if(q && !v2.typing) me(q.dataset.q); });
+function startV2(){ v2=newChat(); renderV2(); ai('Hi! I’ll help you turn an idea into a finished eBook. What would you like to write about?', [DEMO_IDEA, 'Bread']); }
+
+/* ---------- tabs & reset ---------- */
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on', v.id===b.dataset.tab));
+  window.scrollTo(0,0);
+}));
+document.getElementById('reset').addEventListener('click', ()=>{ epoch++;
+  Object.assign(v1,newFlow()); Object.assign(v3,newFlow()); renderV1(); renderV3(); startV2(); });
+renderV1(); renderV3(); startV2();
+</script>
+</body>
+</html>

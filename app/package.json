@@ -1,0 +1,28 @@
+{
+  "name": "folio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "deploy": "vite build --base=/dev/contrast/ && rsync -a -e \"ssh -i $HOME/.ssh/belowe_deploy -o BatchMode=yes\" --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r dist/ dh_i7k8ey@pdx1-shared-a4-10.dreamhost.com:borisbelov.com/dev/contrast/"
+  },
+  "dependencies": {
+    "framer-motion": "11.11.17",
+    "immer": "10.1.1",
+    "lucide-react": "0.460.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zustand": "4.5.5"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.3",
+    "typescript": "5.6.3",
+    "vite": "5.4.11"
+  }
+}

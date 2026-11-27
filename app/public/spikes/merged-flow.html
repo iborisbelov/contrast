@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Folio spike</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F3EE; --surface:#FFFFFF; --ink:#1D1A16; --muted:#6E675E; --line:#E4DED4; --soft:#F1ECE4;
+  --accent:#B8562B; --accent-soft:#F5E3D8; --ok:#2F7D4F; --ok-soft:#E3F1E8; --warn:#A5671B; --warn-soft:#FBF0DA; --err:#B23A2A; --err-soft:#FBE4E0;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:not-allowed}
+h1,h2,h3{font-family:Fraunces,serif;font-weight:600;letter-spacing:-.01em;margin:0}
+h1{font-size:28px;line-height:1.15}
+h2{font-size:21px;line-height:1.25}
+h3{font-size:15px;margin:22px 0 8px;font-family:"Instrument Sans";font-weight:600}
+.eyebrow{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.lead{color:var(--muted);margin:6px 0 16px}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:10;height:56px;display:flex;align-items:center;gap:18px;padding:0 18px;background:var(--surface);border-bottom:1px solid var(--line)}
+.logo{font-family:Fraunces;font-weight:600;font-size:20px;display:flex;align-items:center;gap:8px}
+.logo i{width:22px;height:22px;border-radius:5px 7px 7px 5px;background:var(--ink);display:inline-block;box-shadow:inset 3px 0 0 #4a443c}
+.logo small{font-family:"Instrument Sans";font-weight:500;font-size:11px;color:var(--muted);background:var(--soft);padding:2px 7px;border-radius:99px}
+.steps{display:flex;gap:4px;margin:0 auto}
+.steps button{display:flex;align-items:center;gap:7px;border:none;background:transparent;padding:7px 12px;border-radius:99px;font-size:14px;color:var(--muted)}
+.steps button b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:var(--soft)}
+.steps button.on{color:var(--ink);font-weight:600;background:var(--soft)}
+.steps button.on b{background:var(--ink);color:#fff}
+.steps button.done b{background:var(--ok);color:#fff}
+.steps button:disabled{opacity:.5}
+.topr{display:flex;gap:8px;align-items:center}
+.btn{border:1.5px solid var(--ink);border-radius:999px;padding:9px 18px;font-weight:600;background:transparent;font-size:14px;white-space:nowrap}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.primary:hover{background:#000}
+.btn.ghost{border-color:var(--line);background:var(--surface)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn.sm{padding:5px 12px;font-size:13px}
+.btn:disabled{opacity:.4}
+.link{background:none;border:none;padding:0;color:var(--accent);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+
+/* layout */
+.app{display:grid;grid-template-columns:410px 1fr;height:calc(100vh - 56px)}
+.panel{display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--bg);min-height:0}
+#panelBody{flex:1;overflow:auto;padding:24px 24px 30px}
+.desk{background:radial-gradient(ellipse at 50% 38%, #F1EBE0 0%, #E0D6C5 100%);display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:18px;padding:30px;overflow:auto;position:relative}
+
+/* inputs */
+.input{width:100%;border:1.5px solid var(--line);border-radius:var(--r);padding:11px 13px;font:inherit;background:var(--surface);resize:vertical}
+.input:focus{outline:none;border-color:var(--ink)}
+.input.big{font-size:17px}
+.field{margin-top:12px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+.field label span{font-weight:400;color:var(--muted)}
+.row{display:flex;gap:8px;align-items:center;margin-top:18px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:13.5px}
+.chip:hover:not(.static):not(:disabled){border-color:var(--ink)}
+.chip.static{cursor:default;background:var(--soft)}
+.chip.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.notice{border-radius:var(--r);padding:12px 14px;margin:12px 0;font-size:14px;background:var(--warn-soft)}
+.notice.ok{background:var(--ok-soft)}
+.notice.err{background:var(--err-soft)}
+.restate{font-family:Fraunces,serif;font-size:18px;margin:4px 0}
+.hint{background:var(--soft);border-radius:var(--r);padding:10px 12px;font-size:13.5px;color:#4D463E}
+
+/* titles */
+.titles{display:grid;gap:7px}
+.title-opt{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px 13px}
+.title-opt strong{font-family:Fraunces,serif;font-size:16.5px;font-weight:600}
+.title-opt span{font-size:12.5px;color:var(--muted)}
+.title-opt.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+
+/* outline */
+.outline{list-style:none;padding:0;margin:0;display:grid;gap:5px}
+.outline li{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:5px 6px 5px 4px}
+.outline li.cur{border-color:var(--ink)}
+.outline li.dragging{opacity:.4}
+.outline li.over{box-shadow:0 -3px 0 var(--accent)}
+.handle{cursor:grab;color:#B3AA9C;padding:0 3px;font-size:14px;user-select:none}
+.num{width:22px;height:22px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:11.5px;font-weight:600;flex:none}
+.rename{flex:1;min-width:0;border:1px solid transparent;background:transparent;font:inherit;font-size:14px;padding:4px 6px;border-radius:6px}
+.rename:hover{border-color:var(--line)}
+.rename:focus{outline:none;border-color:var(--ink);background:#fff}
+.tools{display:flex;gap:1px}
+.tools button{border:none;background:transparent;width:26px;height:26px;border-radius:6px;color:var(--muted);font-size:14px}
+.tools button:hover{background:var(--soft);color:var(--ink)}
+.st{font-size:11.5px;width:58px;text-align:right;flex:none}
+.st.done{color:var(--ok)} .st.writing{color:var(--accent)} .st.failed{color:var(--err);font-weight:600} .st.queued{color:var(--muted)}
+
+/* generation */
+.status-msg{display:flex;align-items:center;gap:10px;font-weight:500}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:pulse 1s infinite;flex:none}
+@keyframes pulse{50%{opacity:.3;transform:scale(.8)}}
+.progress{height:6px;background:#E9E3D9;border-radius:99px;overflow:hidden;margin:12px 0 16px}
+.progress div{height:100%;background:var(--accent);transition:width .4s}
+.gen-list{list-style:none;padding:0;margin:0;display:grid;gap:3px}
+.gen-list li{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);font-size:14px}
+.gen-list li em{margin-left:auto;font-style:normal;font-size:12px}
+.gen-list li .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid #BDB5A8;flex:none}
+.gen-list li.writing{background:var(--accent-soft);color:var(--ink)}
+.gen-list li.writing .dot{background:var(--accent);border-color:var(--accent);animation:pulse 1s infinite}
+.gen-list li.done{color:var(--ink);cursor:pointer}
+.gen-list li.done:hover{background:var(--soft)}
+.gen-list li.done .dot{background:var(--ok);border-color:var(--ok)}
+.gen-list li.failed{color:var(--err);background:var(--err-soft)}
+.gen-list li.failed .dot{background:var(--err);border-color:var(--err)}
+.caret{display:inline-block;width:2px;height:1em;background:var(--accent);vertical-align:-2px;margin-left:2px;animation:pulse .8s infinite}
+
+/* refine tabs */
+.tabbar{display:flex;gap:3px;background:#ECE6DC;padding:4px;border-radius:999px;margin:12px 0 16px}
+.tabbar button{flex:1;border:none;background:transparent;border-radius:999px;padding:7px 6px;font-size:13.5px}
+.tabbar button.on{background:var(--surface);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.opt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.opt-grid.three{grid-template-columns:repeat(3,1fr)}
+.opt{border:1.5px solid var(--line);border-radius:10px;background:var(--surface);padding:6px;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11.5px;color:var(--muted)}
+.opt.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);color:var(--ink);font-weight:600}
+.opt .thumb{width:100%;aspect-ratio:2/3;border-radius:3px;overflow:hidden}
+.opt .sw{width:100%;height:34px;border-radius:6px}
+.opt .aa{font-size:24px;line-height:34px;color:var(--ink)}
+.versions{list-style:none;padding:0;margin:0;display:grid;gap:4px;font-size:13.5px}
+.versions li{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+.versions li.cur{border-color:var(--ink)}
+.versions li span{flex:1}
+.check{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:10px}
+.check .mini{width:34px;aspect-ratio:2/3;border-radius:2px;overflow:hidden;flex:none;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.ok-t{color:var(--ok);font-weight:600} .warn-t{color:var(--warn);font-weight:600}
+.toggle{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:14px}
+.toggle input{width:18px;height:18px;accent-color:var(--ink)}
+
+/* co-author */
+.coauthor{border-top:1px solid var(--line);background:var(--surface);padding:10px 14px 12px}
+.co-head{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.co-head i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+#coLog{display:flex;flex-direction:column;gap:6px;max-height:118px;overflow:auto;margin-bottom:6px}
+.msg{max-width:92%;padding:7px 11px;border-radius:13px;font-size:13.5px}
+.msg.ai{background:var(--soft);border-bottom-left-radius:4px;align-self:flex-start}
+.msg.me{background:var(--ink);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.msg .link{font-size:12.5px;margin-left:6px}
+#coChips{display:flex;gap:5px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+#coChips .chip{white-space:nowrap;font-size:12.5px;padding:4px 10px}
+.co-form{display:flex;gap:6px}
+.co-form input{flex:1;border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;font:inherit;font-size:14px}
+.co-form input:focus{outline:none;border-color:var(--ink)}
+
+/* book */
+.book{position:relative;width:270px;height:405px;transform:perspective(1600px) rotateY(-14deg) rotateX(2deg);transition:transform .6s}
+.book .pages{position:absolute;top:5px;bottom:5px;left:calc(100% - 3px);width:var(--thick,4px);background:repeating-linear-gradient(90deg,#FBF8F1 0 2px,#E2D9C9 2px 3px);border-radius:0 3px 3px 0;box-shadow:8px 12px 22px rgba(40,25,10,.18);transition:width .6s}
+.book .cover{position:relative;width:100%;height:100%;border-radius:2px 5px 5px 2px;overflow:hidden;box-shadow:0 34px 60px -24px rgba(40,25,10,.55)}
+.book .cover::after{content:"";position:absolute;left:9px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.08)}
+.book.big{width:300px;height:450px}
+.cover-svg{display:block;width:100%;height:100%}
+.desk-meta{font-size:13px;color:#6B6155}
+.seg{display:flex;background:rgba(255,255,255,.55);border-radius:99px;padding:3px;gap:2px}
+.seg button{border:none;background:transparent;border-radius:99px;padding:5px 14px;font-size:13px}
+.seg button.on{background:#fff;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.deskbar{display:flex;align-items:center;gap:14px}
+.navbtn{border:none;background:rgba(255,255,255,.55);width:32px;height:32px;border-radius:50%;font-size:16px}
+.navbtn:disabled{opacity:.3}
+
+.spread{display:flex;width:min(800px,100%);height:min(540px,calc(100vh - 200px));background:#FBF8F2;border-radius:4px;box-shadow:0 34px 70px -28px rgba(40,25,10,.6);position:relative;
+  --body:"Newsreader",serif; --head:"Fraunces",serif; --acc:#B8562B}
+.spread::before{content:"";position:absolute;left:38%;top:0;bottom:0;width:30px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(0,0,0,.07),transparent);pointer-events:none}
+.page{padding:34px 30px;overflow:auto;font-family:var(--body);font-size:15px;line-height:1.62;color:#2A241D}
+.page.left{flex:0 0 38%;border-right:1px solid rgba(0,0,0,.04)}
+.page.right{flex:1}
+.page .eyebrow{font-family:"Instrument Sans";margin-bottom:6px}
+.page h4{font-family:var(--head);font-size:23px;font-weight:600;margin:0 0 16px;line-height:1.2}
+.theme-modern h4{letter-spacing:-.02em;font-weight:700}
+.theme-warm h4{font-weight:400}
+.page-toc{list-style:none;padding:0;margin:0}
+.page-toc li{display:flex;gap:10px;padding:7px 4px;border-bottom:1px dotted #D8CFBF;color:#9A9184;font-size:14px;cursor:default;border-radius:4px}
+.page-toc li.done{color:#2A241D;cursor:pointer}
+.page-toc li.done:hover{background:rgba(0,0,0,.04)}
+.page-toc li.writing{color:#2A241D}
+.page-toc li.failed{color:var(--err)}
+.page-toc li.cur{font-weight:600}
+.page-toc li b{font-family:var(--head);font-weight:600;width:16px;flex:none}
+.page-toc li i{margin-left:auto;font-style:normal;font-family:"Instrument Sans";font-size:11px;color:var(--muted);white-space:nowrap}
+.page-toc li.writing i{color:var(--acc)}
+.page-toc li.failed i{color:var(--err)}
+.para{border-radius:6px;padding:3px 7px;margin:0 -7px 10px;cursor:pointer;transition:background .15s}
+.para:hover{background:rgba(184,86,43,.07)}
+.para.sel{background:rgba(184,86,43,.11);box-shadow:inset 3px 0 0 var(--acc)}
+.para.changed{background:linear-gradient(transparent 62%, #F7DCC9 62%)}
+.para.placeholder{color:#9A6A44;font-style:italic;border:1.5px dashed #D9B79A}
+.para.editing{background:#fff;box-shadow:0 0 0 2px var(--ink);cursor:text;outline:none}
+.dropcap .para.first::first-letter{font-family:var(--head);font-size:3.1em;float:left;line-height:.85;padding:5px 7px 0 0;color:var(--acc)}
+.ptools{display:flex;flex-wrap:wrap;gap:2px;background:#1D1A16;border-radius:10px;padding:4px;margin:-4px 0 12px;font-family:"Instrument Sans"}
+.ptools button{background:transparent;border:none;color:#fff;font-size:12.5px;padding:5px 9px;border-radius:7px;white-space:nowrap}
+.ptools button:hover{background:#3A342D}
+.ptools .sep{width:1px;background:#4a443c;margin:3px 2px}
+.pending-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-family:"Instrument Sans";font-size:12.5px;margin:-4px 0 12px;background:var(--ok-soft);border-radius:8px;padding:6px 8px}
+.pending-bar span{flex:1;min-width:120px}
+.state-card{font-family:"Instrument Sans";font-size:14px;border-radius:10px;padding:14px;margin-top:6px}
+.state-card.err{background:var(--err-soft)}
+.state-card.wait{background:var(--soft);color:var(--muted)}
+@keyframes flash{0%{background:#F7DCC9}100%{background:transparent}}
+.flash{animation:flash 1.4s}
+
+/* publish */
+.checklist{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.checklist li{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px}
+.checklist li b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;flex:none;color:#fff;background:var(--ok);margin-top:1px}
+.checklist li.warn b{background:var(--warn)}
+.checklist li small{display:block;color:var(--muted);font-size:12.5px}
+.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.outcome{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:2px}
+.outcome:hover{border-color:var(--ink)}
+.outcome strong{font-size:14.5px}
+.outcome span{font-size:12.5px;color:var(--muted)}
+.outcome.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.outcome.primary span{color:#CFC8BC}
+.og{width:480px;max-width:100%;aspect-ratio:1200/630;border-radius:12px;overflow:hidden;display:flex;box-shadow:0 18px 40px -20px rgba(40,25,10,.5)}
+.og .ogc{flex:0 0 42%;display:flex;align-items:center;justify-content:center}
+.og .ogc div{width:52%;aspect-ratio:2/3;box-shadow:0 10px 20px rgba(0,0,0,.3);border-radius:2px;overflow:hidden}
+.og .ogt{flex:1;background:#FBF8F2;padding:26px 22px;display:flex;flex-direction:column;justify-content:center}
+.og .ogt strong{font-family:Fraunces;font-size:22px;line-height:1.15}
+.og .ogt span{font-size:12px;color:var(--muted);margin-top:8px}
+.og .ogt em{font-style:normal;font-size:11px;color:var(--muted);margin-top:14px;letter-spacing:.04em}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1D1A16;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:20}
+#toast.on{opacity:1;transform:translateX(-50%)}
+
+/* print = real PDF via the browser */
+#print{display:none}
+@media print{
+  @page{size:6in 9in;margin:.7in .65in}
+  @page :first{margin:0}
+  html,body{background:#fff}
+  body > *:not(#print){display:none !important}
+  #print{display:block;font-family:"Newsreader",serif;font-size:11.5pt;line-height:1.55;color:#1d1a16}
+  .p-cover{width:6in;height:9in;page-break-after:always}
+  .p-cover svg{width:100%;height:100%;display:block}
+  .p-title{page-break-after:always;text-align:center;padding-top:2.4in}
+  .p-title h1{font-size:30pt}
+  .p-toc{page-break-after:always}
+  .p-toc li{margin:6pt 0}
+  .p-ch{page-break-before:always}
+  .p-ch h2{font-family:Fraunces,serif;font-size:20pt;margin:1in 0 18pt}
+  .p-ch .eyebrow{font-family:"Instrument Sans";font-size:8pt}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="logo"><i></i>Folio <small>spike · fixed demo book</small></div>
+  <nav class="steps" id="steps"></nav>
+  <div class="topr">
+    <button class="btn ghost sm" id="undoBtn" data-act="undo" disabled>↶ Undo</button>
+    <button class="btn ghost sm" data-act="restart">Restart</button>
+  </div>
+</header>
+<div class="app">
+  <aside class="panel">
+    <div id="panelBody"></div>
+    <div class="coauthor">
+      <div class="co-head"><i></i>Co-author · ask for any change</div>
+      <div id="coLog"></div>
+      <div id="coChips"></div>
+      <form class="co-form" id="coForm"><input id="coIn" placeholder="e.g. “make chapter 2 more practical”" autocomplete="off"><button class="btn primary sm">Ask</button></form>
+    </div>
+  </aside>
+  <main class="desk" id="desk"></main>
+</div>
+<div id="toast"></div>
+<div id="print"></div>
+
+<script>
+/* =========================================================
+   DEMO CONTENT
+   ========================================================= */
+const DEMO_IDEA = 'A simple sourdough guide for people with full-time jobs';
+const TITLES = [
+  {t:'Sourdough for Busy People', s:'Real bread on a weeknight schedule'},
+  {t:'The 20-Minute Loaf', s:'Sourdough in the gaps of a full day'},
+  {t:'Bread Without the Fuss', s:'A calm beginner’s guide to sourdough'}
+];
+const CONTENT = {
+  why:{title:'Why Sourdough Fits a Busy Life', paras:[
+    'Most people think sourdough needs a free weekend and a baker’s patience. It doesn’t. What it needs is a rhythm — a few minutes here and there that fit around the life you already have.',
+    'The secret is that sourdough does most of its work while you’re away. Fermentation is slow on purpose. While you sleep, commute or sit in meetings, wild yeast is quietly building the flavour and structure you could never rush.',
+    'This guide gives you a schedule built around a nine-to-five day: ten minutes in the morning, fifteen in the evening, and a bake that’s done before dinner. No special equipment beyond a pot with a lid. No guilt if you miss a feed.'],
+    ex:'Take Dana, a nurse on rotating shifts: she feeds her starter while the kettle boils and bakes twice a week without planning around it.'},
+  starter:{title:'Your Starter in Five Minutes a Day', paras:[
+    'A starter is just flour and water that has caught wild yeast from the air and your hands. It sounds fragile. It isn’t. A healthy starter forgives late feeds, cold kitchens and the odd forgotten weekend.',
+    'Keep it in a clear jar with a rubber band marking the level. Feed it once a day: a spoonful of the old starter, equal weights of flour and water, a quick stir. That’s the whole routine — about the time it takes to make coffee.',
+    'When it doubles within six hours of a feed and smells pleasantly sour, it’s ready to bake with. If life gets busy, put it in the fridge. It will wait for you.'],
+    ex:'For example, if you feed it at 8am, it’s usually ready to use by early afternoon.'},
+  schedule:{title:'The Weeknight Bake Schedule', paras:[
+    'The trick to baking on a work day is splitting the job into short moments. Mix in the evening, let the dough rise overnight, and shape it before you leave in the morning.',
+    'Your shaped loaf rests in the fridge all day, where the cold slows everything down and deepens the flavour. When you get home, heat the oven, bake for forty minutes, and dinner comes with bread.'],
+    ex:'For example: mix at 9pm, shape at 7am, bake at 6:30pm.'},
+  shaping:{title:'Shaping Without the Stress', paras:[
+    'Shaping is where most beginners panic, because sticky dough feels out of control. Wet hands and a light touch fix most of it. You’re not kneading — you’re folding the dough into a tight, round parcel.',
+    'Don’t chase a perfect shape on your first loaves. A slightly lopsided loaf still bakes into good bread, and your hands will learn faster than any instructions can teach them.'],
+    ex:'For example, try shaping on a dry counter with just a dusting of flour — the slight grip helps you build tension.'},
+  fixing:{title:'Fixing Flat, Dense and Sour Loaves', paras:[
+    'Every baker gets a flat loaf sooner or later. It usually means the dough rose too long or the starter wasn’t quite ready. The fix is almost always time, not technique.',
+    'Dense crumb points the other way: too little rise. Very sour bread means a long, warm wait. Keep a simple note of times and temperatures, and patterns will show up within a few bakes.'],
+    ex:'For example, if your loaf spread flat after an eleven-hour rise, try nine hours next time.'},
+  beyond:{title:'Beyond the Basic Loaf', paras:[
+    'Once your weeknight loaf feels routine, small changes open up a lot of new bread. Swap a fifth of the flour for whole wheat or rye. Fold in olives, seeds or cheese before the overnight rise.',
+    'The same rhythm works for pizza dough, focaccia and soft sandwich loaves. You’ve already done the hard part: building a habit that fits your life.'],
+    ex:'For example, a handful of toasted sunflower seeds and a spoon of honey turns the basic loaf into a breakfast bread.'},
+  tools:{title:'The Tools You Actually Need', paras:[
+    'You need less than the internet suggests. A kitchen scale, a large bowl, a jar for your starter and a heavy pot with a lid will carry you through every recipe in this book.',
+    'Everything else — bannetons, lames, proofing boxes — is nice to have. Buy it later, once you know you’ll keep baking.'],
+    ex:'For example, a cheap digital scale makes your loaves more consistent than any fancy gadget.'},
+  kids:{title:'Baking with Kids', paras:[
+    'Sourdough is a slow, forgiving project, which makes it a good one to share. Kids love feeding the starter, watching it bubble and naming it.',
+    'Give them the jobs that can’t go wrong: weighing flour, stirring, dusting the counter. Save the hot oven for yourself.'],
+    ex:'For example, let them draw a line on the jar each morning to see how much the starter grew.'},
+  leftover:{title:'Recipes for Leftover Starter', paras:[
+    'Every feed leaves you with spare starter. Instead of throwing it away, keep a “discard” jar in the fridge and use it within the week.',
+    'Pancakes, crackers and flatbreads all welcome a few spoonfuls. They add flavour without any extra waiting.'],
+    ex:'For example, mix a cup of discard with an egg and a pinch of salt for weekend pancakes.'}
+};
+const BASE_KEYS = ['why','starter','schedule','shaping','fixing','beyond'];
+const ADD_SUGGEST = ['tools','kids','leftover'];
+const GENERIC_EX = ['For example, start with one small change this week and notice what happens.','For example, write down what you did today so next week is easier.'];
+const WARM = ['Here’s the good news: ','Don’t worry — ','Honestly, '];
+const SIMPLE = [['Fermentation','Rising'],['fermentation','rising'],['structure','shape'],['temperatures','temps'],['technique','skill'],['deepens','improves'],['pleasantly','nicely'],['forgives','survives'],['quietly building','building']];
+const OPTS = {
+  audience:['Busy beginners','Home bakers','Parents with little time'],
+  tone:['Warm & practical','Playful','Straight to the point'],
+  length:['Short guide · 6 chapters','Mini guide · 4 chapters','Full guide · 8 chapters']
+};
+const PALETTES = [
+  {name:'Flour & crust', bg:'#E8D9C0', ink:'#2A1C12', motif:'#B8692F', score:'#F3E6CF', panel:'#F4EADA'},
+  {name:'Forest', bg:'#1F3A2E', ink:'#F1E8D6', motif:'#D9A55B', score:'#1F3A2E', panel:'#173026'},
+  {name:'Night bake', bg:'#1B1F33', ink:'#F2D48A', motif:'#E1B562', score:'#1B1F33', panel:'#13162A'},
+  {name:'Rye & blush', bg:'#F2D6CF', ink:'#3B1F2B', motif:'#8C3B4A', score:'#F2D6CF', panel:'#F9E9E4'}
+];
+const LAYOUTS = [['object','Object'],['type','Type-led'],['pattern','Pattern'],['frame','Classic']];
+const FONTS = {editorial:{name:'Editorial', fam:'Fraunces, serif', w:600}, modern:{name:'Modern', fam:'Instrument Sans, sans-serif', w:700}, classic:{name:'Classic', fam:'DM Serif Display, serif', w:400}};
+const MOTIFS = [['loaf','Loaf'],['wheat','Wheat'],['none','None']];
+const THEMES = {classic:{name:'Classic', body:"'Newsreader',serif", head:"'Fraunces',serif"}, modern:{name:'Modern', body:"'Instrument Sans',sans-serif", head:"'Instrument Sans',sans-serif"}, warm:{name:'Warm', body:"'Newsreader',serif", head:"'DM Serif Display',serif"}};
+const KIND = {shorter:'Shorter', simpler:'Simpler', example:'Added example', warmer:'Warmer', edit:'Edited by you'};
+const CH_KIND = {shorter:'Shorter', practical:'More practical', personal:'More personal', fresh:'Fresh take'};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let epoch = 0, uid = 0, history = [];
+let S;
+function newChapter(key, status='planned'){ const c=CONTENT[key]; return {id:++uid, key, title:c?c.title:key, status, paras:[], versions:[], failedOnce:false}; }
+function fresh(){
+  return {
+    step:'idea', idea:'', clarify:false, understood:false, chips:{audience:0,tone:0,length:0}, story:'',
+    book:{ title:TITLES[0].t, subtitle:TITLES[0].s, author:'Alex Morgan',
+      chapters: BASE_KEYS.map(k=>newChapter(k)),
+      cover:{layout:'object', pal:0, font:'editorial', motif:'loaf'},
+      style:{theme:'classic', dropcap:true} },
+    gen:{running:false, started:false, streamId:null, streamed:'', msg:''},
+    view:{mode:'cover', chapter:0, tab:'text'},
+    sel:null, pending:null, editing:null, adding:false, flash:null,
+    co:[{from:'ai', text:'Hi! I’m your co-author. Describe your book on the left — or just tell me here.'}]
+  };
+}
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const pages = n => n*5+4;
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2000); }
+function pushHistory(label){ history.push({label, book:clone(S.book)}); if(history.length>60) history.shift(); }
+function undo(){
+  const h=history.pop(); if(!h){ toast('Nothing to undo'); return; }
+  S.book=h.book; S.pending=null; S.sel=null; S.editing=null;
+  if(S.view.chapter>=S.book.chapters.length) S.view.chapter=S.book.chapters.length-1;
+  toast('Undone: '+h.label); render();
+}
+const chs = () => S.book.chapters;
+const curCh = () => chs()[S.view.chapter];
+const allDone = () => chs().every(c=>c.status==='done');
+const anyWritten = () => S.gen.started;
+
+/* =========================================================
+   TEXT TRANSFORMS (simulated AI)
+   ========================================================= */
+const sentences = t => (t.match(/[^.!?]+[.!?]+(\s|$)/g)||[t]).map(s=>s.trim());
+function transform(kind, text, ch, v=0){
+  if(kind==='shorter'){
+    const s=sentences(text);
+    if(s.length>1) return s.slice(0, v%2===0 ? Math.ceil(s.length/2) : 1).join(' ');
+    const i=text.search(/ — |, /); return i>20 ? text.slice(0,i).trim()+'.' : text;
+  }
+  if(kind==='simpler'){
+    let r=text; SIMPLE.forEach(([a,b])=>{ r=r.split(a).join(b); });
+    const s=sentences(r).map(x=> x.length>105 ? x.split(/, | — /)[0].replace(/[.!?]?$/,'.') : x);
+    return s.slice(0, v%2 ? 1 : 2).join(' ');
+  }
+  if(kind==='example'){
+    const ex = (CONTENT[ch.key] && v===0) ? CONTENT[ch.key].ex : GENERIC_EX[v%GENERIC_EX.length];
+    return text+' '+ex;
+  }
+  if(kind==='warmer'){ const o=WARM[v%WARM.length]; return o+text.charAt(0).toLowerCase()+text.slice(1); }
+  return text;
+}
+function contentFor(ch){
+  if(CONTENT[ch.key] && CONTENT[ch.key].title===ch.title) return [...CONTENT[ch.key].paras];
+  if(CONTENT[ch.key]) return [...CONTENT[ch.key].paras];
+  return [`This chapter covers ${ch.title.toLowerCase()} — what it is, why it matters for a busy baker, and the simplest way to start.`,
+          'As with everything in this book, the goal is a small habit that fits your week, not a project that takes over your weekend.'];
+}
+
+/* =========================================================
+   GENERATION (simulated, with one forced failure)
+   ========================================================= */
+function startWriting(){
+  S.step='write'; S.view={mode:'pages', chapter:0, tab:'text'}; S.gen={running:true, started:true, streamId:null, streamed:'', msg:'Planning how the chapters connect…'};
+  chs().forEach(c=>{ c.status='queued'; c.paras=[]; c.versions=[]; });
+  coSay('Writing now. Chapter 1 appears first — start reading while I write the rest.');
+  render();
+  const my=epoch, queue=chs().map(c=>c.id); let k=0;
+  const next=()=>{
+    if(my!==epoch) return;
+    if(k>=queue.length){
+      S.gen.running=false;
+      const failed=chs().filter(c=>c.status==='failed').length;
+      S.gen.msg = failed ? `${chs().length-failed} of ${chs().length} chapters written` : 'All chapters written';
+      coSay(failed ? 'Almost there — one chapter didn’t finish. Your other chapters are safe; hit Retry on it.' : 'Done! Click any paragraph in the book to change it, or ask me.');
+      render(); return;
+    }
+    const ch=chs().find(c=>c.id===queue[k]); const idx=k; k++;
+    if(!ch) return next();
+    writeChapter(ch, idx===0, next, my, idx===4);
+  };
+  setTimeout(next, 1100);
+}
+function writeChapter(ch, stream, done, my, failFirst){
+  ch.status='writing'; S.gen.msg=`Writing “${ch.title}”…`; render();
+  const paras=contentFor(ch);
+  const finish=()=>{ ch.paras=[...paras]; ch.versions=[{label:'First draft', paras:[...paras]}]; ch.status='done'; render(); done&&done(); };
+  if(stream){
+    const full=paras.join('\n\n'); let c=0; S.gen.streamId=ch.id;
+    const t=setInterval(()=>{ if(my!==epoch){clearInterval(t);return;} c+=7; S.gen.streamed=full.slice(0,c); renderDesk();
+      if(c>=full.length){ clearInterval(t); S.gen.streamId=null; finish(); } },40);
+  } else {
+    setTimeout(()=>{ if(my!==epoch) return;
+      if(failFirst && !ch.failedOnce){ ch.failedOnce=true; ch.status='failed'; render(); done&&done(); return; }
+      finish(); }, 1100);
+  }
+}
+function chapterRewrite(i, kind){
+  const ch=chs()[i]; if(!ch || ch.status!=='done') return;
+  pushHistory(`“${ch.title}” · ${CH_KIND[kind]}`);
+  ch.status='writing'; S.pending=null; S.sel=null; render();
+  const my=epoch;
+  setTimeout(()=>{ if(my!==epoch) return;
+    let p=[...ch.paras].filter(x=>!x.startsWith('['));
+    if(kind==='shorter') p=p.map(x=>transform('shorter',x,ch,0));
+    if(kind==='practical') p[p.length-1]=transform('example',p[p.length-1],ch,0);
+    if(kind==='personal'){ p[0]=transform('warmer',p[0],ch,0);
+      p.splice(1,0, S.story.trim() ? 'From my own kitchen: '+S.story.trim() : '[Add a short story of your own here — readers trust real experience. Click to write it.]'); }
+    if(kind==='fresh') p=p.map((x,j)=> j%2 ? transform('warmer',x,ch,1) : transform('simpler',x,ch,0));
+    ch.paras=p; ch.versions.push({label:CH_KIND[kind], paras:[...p]}); ch.status='done'; S.flash=ch.id; render();
+  },1300);
+}
+function applyPara(kind, ci, p, v=0){
+  const ch=chs()[ci];
+  pushHistory(`Paragraph ${p+1} · ${KIND[kind]}`);
+  ch.paras[p]=transform(kind, ch.paras[p], ch, v);
+  ch.versions.push({label:`Paragraph ${p+1} · ${KIND[kind]}`, paras:[...ch.paras]});
+  S.pending={ci,p,kind,v}; S.sel=null; render();
+}
+function addChapter(key, title){
+  pushHistory('Add chapter');
+  const ch = CONTENT[key] ? newChapter(key) : (()=>{ const c=newChapter('custom'); c.title=title; return c; })();
+  chs().push(ch); S.adding=false;
+  if(anyWritten()){ ch.status='queued'; S.view.chapter=chs().length-1; render(); writeChapter(ch,false,()=>{ S.gen.msg='All chapters written'; render(); },epoch,false); }
+  else render();
+  return ch;
+}
+
+/* =========================================================
+   COVER GENERATOR (theme-driven, 4 layouts)
+   ========================================================= */
+function wrap(text,max){ const out=[]; let cur=''; for(const w of text.split(/\s+/)){ if(cur && (cur+' '+w).length>max){out.push(cur);cur=w;} else cur=(cur?cur+' ':'')+w; } if(cur) out.push(cur); return out.slice(0,4); }
+function motifSVG(kind, cx, cy, r, p, dash=''){
+  if(kind==='none') return '';
+  if(kind==='wheat'){
+    let g=`<line x1="${cx}" y1="${cy+r}" x2="${cx}" y2="${cy-r*.9}" stroke="${p.motif}" stroke-width="${Math.max(2,r*.05)}" stroke-linecap="round" ${dash}/>`;
+    for(let i=0;i<5;i++){ const y=cy-r*.75+i*r*.3, rx=r*.12, ry=r*.26;
+      g+=`<ellipse cx="${cx-r*.16}" cy="${y}" rx="${rx}" ry="${ry}" fill="${dash?'none':p.motif}" stroke="${dash?'#B9B0A2':'none'}" ${dash} transform="rotate(-30 ${cx-r*.16} ${y})"/>`;
+      g+=`<ellipse cx="${cx+r*.16}" cy="${y}" rx="${rx}" ry="${ry}" fill="${dash?'none':p.motif}" stroke="${dash?'#B9B0A2':'none'}" ${dash} transform="rotate(30 ${cx+r*.16} ${y})"/>`; }
+    return g;
+  }
+  const sw=Math.max(2,r*.066), sc=(dy,w)=>`<path d="M${cx-w*r} ${cy+dy*r} Q${cx} ${cy+(dy-.3)*r} ${cx+w*r} ${cy+dy*r}" stroke="${dash?'#B9B0A2':p.score}" stroke-width="${sw}" fill="none" stroke-linecap="round" ${dash}/>`;
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${dash?'none':p.motif}" stroke="${dash?'#B9B0A2':'none'}" stroke-width="2" ${dash}/>${sc(-.3,.55)}${sc(0,.66)}${sc(.3,.55)}`;
+}
+function coverSVG(book, opt={}){
+  const stage = opt.stage||'final';
+  if(stage==='empty') return `<svg viewBox="0 0 300 450" class="cover-svg"><rect x="1" y="1" width="298" height="448" rx="4" fill="#FBF9F5" stroke="#CFC7BA" stroke-width="2" stroke-dasharray="7 7"/><text x="150" y="226" text-anchor="middle" font-family="Instrument Sans" font-size="15" fill="#9A9184">Your book will appear here</text><text x="150" y="248" text-anchor="middle" font-family="Instrument Sans" font-size="12" fill="#B3AA9C">as you describe it</text></svg>`;
+  const c = Object.assign({}, book.cover, opt.cover||{});
+  if(stage==='sketch'){
+    const p={motif:'none',score:'#B9B0A2'}; const d='stroke-dasharray="5 7"';
+    return `<svg viewBox="0 0 300 450" class="cover-svg"><rect width="300" height="450" fill="#F3EFE8"/>
+      <rect x="26" y="50" width="190" height="24" rx="4" fill="#DDD6CA"/><rect x="26" y="86" width="130" height="24" rx="4" fill="#DDD6CA"/>
+      ${motifSVG(c.motif==='none'?'loaf':c.motif,150,318,88,p,d)}
+      <text x="26" y="432" font-family="Instrument Sans" font-size="10.5" letter-spacing="2" fill="#A79F92">${esc(book.author.toUpperCase())}</text></svg>`;
+  }
+  const p=PALETTES[c.pal], f=FONTS[c.font];
+  const T=(txt,x,y,size,anchor='start',extra='')=>`<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="${f.fam}" font-weight="${f.w}" font-size="${size}" fill="${p.ink}" ${extra}>${esc(txt)}</text>`;
+  const S2=(txt,x,y,size,anchor='start',op=.82,ls=0)=>`<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="Instrument Sans" font-size="${size}" fill="${p.ink}" opacity="${op}" letter-spacing="${ls}">${esc(txt)}</text>`;
+  const author=book.author.toUpperCase(), title=book.title||'Untitled', sub=book.subtitle||'';
+  let g=`<rect width="300" height="450" fill="${p.bg}"/>`;
+  if(c.layout==='object'){
+    const L=wrap(title,12); L.forEach((l,i)=> g+=T(l,26,76+i*38,33));
+    g+=S2(sub,26,76+Math.max(L.length,2)*38-6,12.5);
+    g+=motifSVG(c.motif,150,326,86,p); g+=S2(author,26,432,10.5,'start',.85,2);
+  } else if(c.layout==='type'){
+    const L=wrap(title,9); L.forEach((l,i)=> g+=T(l,22,104+i*50,48,'start','letter-spacing="-1"'));
+    const y=104+(L.length-1)*50+28; g+=`<rect x="24" y="${y}" width="60" height="3" fill="${p.motif}"/>`;
+    g+=S2(sub,24,y+26,12.5); g+=motifSVG(c.motif,244,378,32,p); g+=S2(author,24,432,10.5,'start',.85,2);
+  } else if(c.layout==='pattern'){
+    if(c.motif!=='none') for(let r=0;r<9;r++) for(let col=0;col<6;col++){ const x=25+col*50+(r%2?25:0), y=25+r*50; g+=`<g opacity=".28">${motifSVG(c.motif,x,y,15,p)}</g>`; }
+    g+=`<rect x="34" y="130" width="232" height="200" fill="${p.panel}"/>`;
+    const L=wrap(title,14); const top=190-(L.length-1)*16; L.forEach((l,i)=> g+=T(l,150,top+i*33,28,'middle'));
+    g+=S2(sub,150,top+L.length*33+4,11,'middle'); g+=S2(author,150,310,10,'middle',.75,2);
+  } else {
+    g+=`<rect x="16" y="16" width="268" height="418" fill="none" stroke="${p.ink}" stroke-width="1.5" opacity=".7"/><rect x="22" y="22" width="256" height="406" fill="none" stroke="${p.ink}" stroke-width=".6" opacity=".5"/>`;
+    const L=wrap(title,13); L.forEach((l,i)=> g+=T(l,150,104+i*37,31,'middle'));
+    g+=S2(sub,150,104+L.length*37+2,11.5,'middle');
+    g+=motifSVG(c.motif,150,300,50,p); g+=S2(author,150,404,10.5,'middle',.85,3);
+  }
+  return `<svg viewBox="0 0 300 450" class="cover-svg">${g}</svg>`;
+}
+function lum(hex){ const v=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255).map(c=>c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)); return .2126*v[0]+.7152*v[1]+.0722*v[2]; }
+function contrast(a,b){ const x=lum(a), y=lum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); }
+
+/* =========================================================
+   RENDER: top bar
+   ========================================================= */
+const STEPS=[['idea','Idea'],['shape','Shape'],['write','Write & refine'],['publish','Publish']];
+function renderTop(){
+  const order=STEPS.map(s=>s[0]); const cur=order.indexOf(S.step);
+  $('steps').innerHTML = STEPS.map(([k,n],i)=>{
+    let enabled = i<=cur || (k==='publish' && S.gen.started && !S.gen.running);
+    if(S.gen.started && (k==='idea'||k==='shape')) enabled=false;
+    if(k==='write' && !S.gen.started) enabled=false;
+    return `<button class="${k===S.step?'on':''} ${i<cur?'done':''}" data-act="goto-step" data-v="${k}" ${enabled&&k!==S.step?'':'disabled'} title="${S.gen.started&&i<2?'Your book is written — change things in Write & refine':''}"><b>${i<cur?'✓':i+1}</b>${n}</button>`;
+  }).join('');
+  const u=$('undoBtn'); u.disabled=!history.length; u.textContent = history.length ? '↶ Undo' : '↶ Undo'; u.title = history.length ? 'Undo: '+history[history.length-1].label+' (⌘Z)' : 'Nothing to undo';
+}
+
+/* =========================================================
+   RENDER: left panel
+   ========================================================= */
+function ideaPanel(){
+  const aud=OPTS.audience[S.chips.audience], tone=OPTS.tone[S.chips.tone], len=OPTS.length[S.chips.length];
+  return `<span class="eyebrow">Step 1 · Idea</span><h1 style="margin-top:6px">What’s your book about?</h1>
+  <p class="lead">One sentence is enough. Mention who it’s for if you can.</p>
+  <textarea class="input big" data-bind="idea" rows="3" placeholder="e.g. ${esc(DEMO_IDEA)}">${esc(S.idea)}</textarea>
+  <div class="muted" style="font-size:13.5px;margin:8px 0 14px">Try <button class="link" data-act="example">${esc(DEMO_IDEA)}</button> — or something vague like “bread”.</div>
+  ${S.clarify ? `<div class="notice"><strong>Tell me a bit more.</strong> “${esc(S.idea)}” could become many different books. Who is it for?
+    <div class="chips">${['Busy beginners with full-time jobs','Experienced home bakers','Parents baking with kids'].map(o=>`<button class="chip" data-act="clarify" data-v="${o}">${o}</button>`).join('')}</div></div>`:''}
+  ${S.understood ? `<div class="card">
+    <div class="eyebrow">Here’s what I’ll make</div>
+    <p class="restate">A ${tone.toLowerCase()} ${len.split(' · ')[0].toLowerCase()} on sourdough baking for ${aud.toLowerCase()}.</p>
+    <div class="chips">
+      <span class="chip static">Topic · Sourdough</span>
+      <button class="chip" data-act="cycle" data-k="audience" title="Click to change">${aud} ↻</button>
+      <button class="chip" data-act="cycle" data-k="tone" title="Click to change">${tone} ↻</button>
+      <button class="chip" data-act="cycle" data-k="length" title="Click to change">${len} ↻</button>
+    </div>
+    <div class="field"><label>A tip or story only you know <span>(optional — makes it sound like you)</span></label>
+    <textarea class="input" data-bind="story" rows="2" placeholder="e.g. I bake before my 8am commute — the trick is an overnight rise in the fridge">${esc(S.story)}</textarea></div>
+    <div class="row"><button class="btn primary" data-act="to-shape">Looks right — next</button></div></div>`
+  : `<button class="btn primary" data-act="analyze">Continue</button>`}`;
+}
+function outlineEditor(){
+  const written=S.gen.started;
+  return `<ol class="outline" id="outline">${chs().map((c,i)=>`
+    <li draggable="true" data-drag="${i}" class="${written&&S.view.chapter===i?'cur':''}">
+      <span class="handle" title="Drag to reorder">⠇</span><span class="num">${i+1}</span>
+      <input class="rename" data-rename="${i}" value="${esc(c.title)}" aria-label="Chapter ${i+1} title">
+      ${written?`<span class="st ${c.status}">${c.status==='done'?'✓ Done':c.status==='failed'?'Failed':c.status==='writing'?'Writing…':'Queued'}</span>`:''}
+      <span class="tools">${written&&c.status==='done'?`<button data-act="open-ch" data-i="${i}" title="Open in book">→</button>`:''}<button data-act="del" data-i="${i}" title="Remove chapter">×</button></span>
+    </li>`).join('')}</ol>
+    ${S.adding ? `<div class="card" style="margin-top:8px"><div class="eyebrow">Suggested chapters</div>
+      <div class="chips">${ADD_SUGGEST.filter(k=>!chs().some(c=>c.key===k)).map(k=>`<button class="chip" data-act="add" data-v="${k}">+ ${CONTENT[k].title}</button>`).join('')}</div>
+      <div style="display:flex;gap:6px"><input class="input" id="customCh" placeholder="Or name your own chapter" style="padding:8px 11px"><button class="btn primary sm" data-act="add-custom">Add</button></div>
+      <div class="row" style="margin-top:8px"><button class="link" data-act="add-close">Cancel</button></div></div>`
+    : `<div class="row" style="margin-top:10px"><button class="link" data-act="add-open">+ Add a chapter</button><span class="muted" style="font-size:12.5px">Drag ⠇ to reorder · click a title to rename</span></div>`}`;
+}
+function shapePanel(){
+  const b=S.book;
+  return `<span class="eyebrow">Step 2 · Shape</span><h1 style="margin-top:6px">Pick a title and check the plan</h1>
+  <p class="lead">Nothing is written yet, so changes here are free.</p>
+  <div class="titles">${TITLES.map((t,i)=>`<button class="title-opt ${b.title===t.t?'on':''}" data-act="title" data-i="${i}"><strong>${t.t}</strong><span>${t.s}</span></button>`).join('')}
+    <div class="title-opt ${TITLES.some(t=>t.t===b.title)?'':'on'}" style="padding:5px"><input class="input" style="border:none;padding:7px" data-field="title" placeholder="Or write your own title" value="${TITLES.some(t=>t.t===b.title)?'':esc(b.title)}"></div></div>
+  <h3>Chapters <span class="muted" style="font-weight:400">· ${chs().length} chapters · ~${pages(chs().length)} pages</span></h3>
+  ${outlineEditor()}
+  <div class="row"><button class="btn ghost" data-act="goto-step" data-v="idea">Back</button><button class="btn primary" data-act="write">Write my book</button></div>`;
+}
+function writingPanel(){
+  const done=chs().filter(c=>c.status==='done').length, w=chs().some(c=>c.status==='writing')?.5:0;
+  return `<span class="eyebrow">Step 3 · Writing</span><h1 style="margin-top:6px">Writing your book</h1>
+  <p class="lead">About a minute. Nothing is final — you’ll review and change everything.</p>
+  <p class="status-msg"><span class="pulse"></span>${esc(S.gen.msg)}</p>
+  <div class="progress"><div style="width:${Math.round((done+w)/chs().length*100)}%"></div></div>
+  <ol class="gen-list">${chs().map((c,i)=>`<li class="${c.status}" ${c.status==='done'?`data-act="open-ch" data-i="${i}"`:''}><span class="dot"></span>${esc(c.title)}<em>${c.status==='done'?'Read →':c.status==='failed'?'Didn’t finish':c.status==='writing'?'Writing…':'Queued'}</em></li>`).join('')}</ol>
+  <p class="hint" style="margin-top:14px">→ Finished chapters are readable right away. Click one to start reviewing.</p>`;
+}
+function refinePanel(){
+  const t=S.view.tab, ch=curCh();
+  const failed=chs().filter(c=>c.status==='failed');
+  let body='';
+  if(t==='text'){
+    body = !ch ? '' : `<div class="eyebrow">Chapter ${S.view.chapter+1} of ${chs().length}</div><h2 style="margin:4px 0 10px">${esc(ch.title)}</h2>
+    <p class="hint">Click any paragraph in the book to rewrite or edit it. Or change the whole chapter:</p>
+    <div class="chips">${Object.entries(CH_KIND).map(([k,n])=>`<button class="chip" data-act="ch-rewrite" data-v="${k}" ${ch.status!=='done'?'disabled':''}>${n}</button>`).join('')}</div>
+    <h3>Versions of this chapter</h3>
+    ${ch.versions.length ? `<ol class="versions">${ch.versions.map((v,i)=>({v,i})).reverse().map(({v,i})=>`<li class="${i===ch.versions.length-1?'cur':''}"><span>${esc(v.label)}</span>${i===ch.versions.length-1?'<span class="muted" style="flex:none;font-size:12px">current</span>':`<button class="btn ghost sm" data-act="restore" data-i="${i}">Restore</button>`}</li>`).join('')}</ol>` : '<p class="muted">Not written yet.</p>'}`;
+  }
+  if(t==='chapters'){
+    body = `<p class="muted" style="margin:0 0 10px;font-size:14px">Reorder, rename, remove or add chapters. New chapters are written on the spot.</p>${outlineEditor()}`;
+  }
+  if(t==='cover'){
+    const c=S.book.cover, p=PALETTES[c.pal], cr=contrast(p.ink,p.bg);
+    body = `<div style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">Layout</div><button class="btn ghost sm" data-act="shuffle">✨ Shuffle</button></div>
+    <div class="opt-grid" style="margin-top:8px">${LAYOUTS.map(([k,n])=>`<button class="opt ${c.layout===k?'on':''}" data-act="cover" data-k="layout" data-v="${k}"><span class="thumb">${coverSVG(S.book,{cover:{layout:k}})}</span>${n}</button>`).join('')}</div>
+    <h3>Colour</h3><div class="opt-grid">${PALETTES.map((pp,i)=>`<button class="opt ${c.pal===i?'on':''}" data-act="cover" data-k="pal" data-v="${i}"><span class="sw" style="background:linear-gradient(135deg,${pp.bg} 58%,${pp.motif} 58%)"></span>${pp.name}</button>`).join('')}</div>
+    <h3>Typeface</h3><div class="opt-grid three">${Object.entries(FONTS).map(([k,ff])=>`<button class="opt ${c.font===k?'on':''}" data-act="cover" data-k="font" data-v="${k}"><span class="aa" style="font-family:${ff.fam};font-weight:${ff.w}">Aa</span>${ff.name}</button>`).join('')}</div>
+    <h3>Motif</h3><div class="chips" style="margin:0">${MOTIFS.map(([k,n])=>`<button class="chip ${c.motif===k?'on':''}" data-act="cover" data-k="motif" data-v="${k}">${n}</button>`).join('')}</div>
+    <h3>Text on the cover</h3>
+    <div class="field" style="margin-top:0"><label>Title</label><input class="input" data-field="title" value="${esc(S.book.title)}"></div>
+    <div class="field"><label>Subtitle</label><input class="input" data-field="subtitle" value="${esc(S.book.subtitle)}"></div>
+    <div class="field"><label>Author</label><input class="input" data-field="author" value="${esc(S.book.author)}"></div>
+    <div class="check"><span class="mini">${coverSVG(S.book)}</span>${cr>=4.5?`<span><span class="ok-t">✓ Readable as a thumbnail</span> <span class="muted">· contrast ${cr.toFixed(1)}:1</span></span>`:`<span class="warn-t">⚠ Title may be hard to read small (contrast ${cr.toFixed(1)}:1)</span>`}</div>`;
+  }
+  if(t==='style'){
+    const st=S.book.style;
+    body = `<div class="eyebrow">Interior style</div>
+    <div class="opt-grid three" style="margin-top:8px">${Object.entries(THEMES).map(([k,th])=>`<button class="opt ${st.theme===k?'on':''}" data-act="theme" data-v="${k}"><span class="aa" style="font-family:${th.head}">Ag</span>${th.name}</button>`).join('')}</div>
+    <label class="toggle"><input type="checkbox" data-act="dropcap" ${st.dropcap?'checked':''}> Drop cap at the start of each chapter</label>
+    <p class="hint" style="margin-top:16px">The PDF uses the same style: 6×9 in pages, readable line length, chapters start on a new page.</p>`;
+  }
+  return `<span class="eyebrow">Step 3 · Refine</span><h1 style="margin-top:6px">Make it yours</h1>
+  ${failed.length ? `<div class="notice err"><strong>“${esc(failed[0].title)}” didn’t finish.</strong> Your other chapters are safe.
+    <div class="row" style="margin-top:8px"><button class="btn primary sm" data-act="retry" data-id="${failed[0].id}">Retry this chapter</button></div></div>`:''}
+  <div class="tabbar">${[['text','Text'],['chapters','Chapters'],['cover','Cover'],['style','Style']].map(([k,n])=>`<button class="${t===k?'on':''}" data-act="tab" data-v="${k}">${n}</button>`).join('')}</div>
+  ${body}
+  <div class="row" style="margin-top:22px"><button class="btn primary" data-act="goto-step" data-v="publish">Finish book →</button></div>`;
+}
+function publishPanel(){
+  const b=S.book, failed=chs().filter(c=>c.status!=='done'), p=PALETTES[b.cover.pal], cr=contrast(p.ink,p.bg);
+  const desc = `${b.title}: ${b.subtitle}. A free ${chs().length}-chapter guide by ${b.author} for ${OPTS.audience[S.chips.audience].toLowerCase()}.`;
+  return `<span class="eyebrow">Step 4 · Publish</span><h1 style="margin-top:6px">Ready to share</h1>
+  <p class="lead">A last check, then pick what you want to do with it.</p>
+  <ul class="checklist">
+    <li><b>✓</b><div>Title and author<small>${esc(b.title)} · ${esc(b.author)}</small></div></li>
+    <li class="${failed.length?'warn':''}"><b>${failed.length?'!':'✓'}</b><div>${failed.length?`${failed.length} chapter needs attention`:`All ${chs().length} chapters written`}<small>${failed.length?`<button class="link" data-act="fix-failed">Go fix “${esc(failed[0].title)}”</button>`:`~${pages(chs().length)} pages, 6×9 in`}</small></div></li>
+    <li class="${cr<4.5?'warn':''}"><b>${cr<4.5?'!':'✓'}</b><div>Cover readable as a thumbnail<small>Contrast ${cr.toFixed(1)}:1</small></div></li>
+  </ul>
+  <div class="outcomes">
+    <button class="outcome primary" data-act="pdf"><strong>Download PDF</strong><span>Print-ready, 6×9 in</span></button>
+    <button class="outcome" data-act="link"><strong>Copy share link</strong><span>A page anyone can read</span></button>
+    <button class="outcome" data-act="social" data-v="LinkedIn"><strong>Post on LinkedIn</strong><span>With cover preview</span></button>
+    <button class="outcome" data-act="social" data-v="email"><strong>Send by email</strong><span>To your list or clients</span></button>
+  </div>
+  <div class="field"><label>Description for sharing <span>(written for you — edit freely)</span></label>
+    <textarea class="input" rows="3" id="desc">${esc(desc)}</textarea></div>
+  <div class="row" style="margin-top:10px"><button class="btn ghost sm" data-act="copy-desc">Copy description</button><button class="link" data-act="goto-step" data-v="write">← Back to editing</button></div>`;
+}
+function renderPanel(){
+  const body = S.step==='idea' ? ideaPanel() : S.step==='shape' ? shapePanel() : S.step==='write' ? (S.gen.running ? writingPanel() : refinePanel()) : publishPanel();
+  const pb=$('panelBody'), st=pb.scrollTop; pb.innerHTML=body; pb.scrollTop=st;
+  renderCoChips();
+}
+
+/* =========================================================
+   RENDER: desk (the living book)
+   ========================================================= */
+function closedBook(stage, big){
+  const thick = S.step==='idea' ? 4 : 6+chs().length*3;
+  return `<div class="book ${big?'big':''}" style="--thick:${thick}px"><div class="pages"></div><div class="cover">${coverSVG(S.book,{stage})}</div></div>`;
+}
+function chapterBody(ch, ci){
+  if(!ch) return '';
+  if(ch.status==='writing' && S.gen.streamId===ch.id){
+    return S.gen.streamed ? S.gen.streamed.split('\n\n').map((p,i)=>`<p class="para ${i===0?'first':''}" style="cursor:default">${esc(p)}</p>`).join('')+'<span class="caret"></span>' : '<p class="muted">Starting to write<span class="caret"></span></p>';
+  }
+  if(ch.status==='writing') return `<div class="state-card wait"><span class="pulse" style="display:inline-block;margin-right:8px"></span>Rewriting this chapter…</div>`;
+  if(ch.status==='queued') return `<div class="state-card wait">Waiting its turn — this chapter will be written in a moment. Meanwhile, read the ones marked done.</div>`;
+  if(ch.status==='failed') return `<div class="state-card err"><strong>This chapter didn’t finish.</strong><br>Something went wrong on our side. Your other chapters are safe.<div class="row" style="margin-top:10px"><button class="btn primary sm" data-act="retry" data-id="${ch.id}">Retry this chapter</button></div></div>`;
+  if(ch.status==='planned') return '';
+  return ch.paras.map((p,i)=>{
+    const sel=S.sel&&S.sel.ci===ci&&S.sel.p===i, pend=S.pending&&S.pending.ci===ci&&S.pending.p===i, ed=S.editing&&S.editing.ci===ci&&S.editing.p===i;
+    const ph=p.startsWith('[');
+    let html=`<p class="para ${i===0?'first':''} ${sel?'sel':''} ${pend?'changed':''} ${ph?'placeholder':''} ${ed?'editing':''}" data-para="${i}" data-ci="${ci}" ${ed?'contenteditable="true"':''}>${esc(ph&&ed?'':p)}</p>`;
+    if(ed) html+=`<div class="ptools"><button data-act="edit-done">✓ Done editing</button><button data-act="edit-cancel">Cancel</button></div>`;
+    else if(sel) html+=`<div class="ptools">
+      <button data-act="para" data-v="shorter">Shorter</button><button data-act="para" data-v="simpler">Simpler</button>
+      <button data-act="para" data-v="example">+ Example</button><button data-act="para" data-v="warmer">Warmer</button>
+      <span class="sep"></span><button data-act="edit">✎ Edit myself</button><button data-act="para-ask">Ask…</button></div>`;
+    else if(pend) html+=`<div class="pending-bar"><span>✓ ${KIND[S.pending.kind]} — highlighted</span><button class="btn primary sm" data-act="keep">Keep</button><button class="btn ghost sm" data-act="again">Try another</button><button class="btn ghost sm" data-act="undo">Undo</button></div>`;
+    return html;
+  }).join('');
+}
+function spread(){
+  const ci=S.view.chapter, ch=curCh(), th=THEMES[S.book.style.theme];
+  const acc = S.book.style.theme==='warm' ? PALETTES[S.book.cover.pal].motif : S.book.style.theme==='modern' ? '#1D1A16' : '#B8562B';
+  return `<div class="spread theme-${S.book.style.theme} ${S.book.style.dropcap?'dropcap':''}" style="--body:${th.body};--head:${th.head};--acc:${acc}">
+    <div class="page left"><div class="eyebrow">Contents</div><h4 style="font-size:19px">${esc(S.book.title)}</h4>
+      <ol class="page-toc">${chs().map((c,i)=>`<li class="${c.status} ${i===ci?'cur':''}" ${c.status==='done'||c.status==='failed'?`data-act="open-ch" data-i="${i}"`:''}><b>${i+1}</b>${esc(c.title)}<i>${c.status==='done'?'p. '+(5+i*5):c.status==='writing'?'writing…':c.status==='failed'?'retry':c.status==='queued'?'queued':''}</i></li>`).join('')}</ol></div>
+    <div class="page right ${S.flash===ch?.id?'flash':''}" id="rightPage"><div class="eyebrow">Chapter ${ci+1}</div><h4>${esc(ch?ch.title:'')}</h4>${chapterBody(ch,ci)}</div>
+  </div>`;
+}
+function renderDesk(force){
+  if(S.editing && !force) return; // don't destroy what the user is typing
+  const d=$('desk'), rp=$('rightPage'), st=rp?rp.scrollTop:0;
+  let html='';
+  if(S.step==='idea'){
+    html = closedBook(S.understood?'sketch':'empty') + `<div class="desk-meta">${S.understood?`Cover sketch · sourdough · for ${OPTS.audience[S.chips.audience].toLowerCase()} · ~6 chapters`:'Describe your idea — your book takes shape here'}</div>`;
+  } else if(S.step==='shape'){
+    html = closedBook('final') + `<div class="desk-meta">${chs().length} chapters · ~${pages(chs().length)} pages · the cover updates as you choose</div>`;
+  } else if(S.step==='publish'){
+    html = closedBook('final',true) + `<div class="eyebrow" style="margin-top:6px">Link preview</div>
+      <div class="og" style="background:${PALETTES[S.book.cover.pal].bg}"><div class="ogc"><div>${coverSVG(S.book)}</div></div><div class="ogt"><strong>${esc(S.book.title)}</strong><span>${esc(S.book.subtitle)}</span><em>FOLIO.BOOK · FREE EBOOK BY ${esc(S.book.author.toUpperCase())}</em></div></div>`;
+  } else {
+    const mode = S.view.mode;
+    const nav = `<div class="deskbar"><div class="seg"><button class="${mode==='cover'?'on':''}" data-act="mode" data-v="cover">Cover</button><button class="${mode==='pages'?'on':''}" data-act="mode" data-v="pages">Pages</button></div>
+      ${mode==='pages'?`<button class="navbtn" data-act="nav" data-v="-1" ${S.view.chapter===0?'disabled':''}>‹</button><span class="desk-meta">Chapter ${S.view.chapter+1} of ${chs().length}</span><button class="navbtn" data-act="nav" data-v="1" ${S.view.chapter>=chs().length-1?'disabled':''}>›</button>`:`<span class="desk-meta">${PALETTES[S.book.cover.pal].name} · ${LAYOUTS.find(l=>l[0]===S.book.cover.layout)[1]} · ${FONTS[S.book.cover.font].name}</span>`}</div>`;
+    html = (mode==='cover' ? closedBook('final',true) : spread()) + nav;
+  }
+  d.innerHTML=html;
+  const rp2=$('rightPage'); if(rp2) rp2.scrollTop=st;
+  if(S.flash) setTimeout(()=>{ S.flash=null; },1400);
+}
+function render(){ renderTop(); renderPanel(); renderDesk(); }
+
+/* =========================================================
+   CO-AUTHOR (scoped chat: every action is visible + undoable)
+   ========================================================= */
+function coSay(text, undoable){ S.co.push({from:'ai', text, undo:!!undoable}); renderCo(); }
+function renderCo(){
+  const l=$('coLog'); l.innerHTML=S.co.slice(-3).map(m=>`<div class="msg ${m.from}">${esc(m.text)}${m.undo&&history.length?` <button class="link" data-act="undo">Undo</button>`:''}</div>`).join(''); l.scrollTop=l.scrollHeight;
+}
+function coSuggestions(){
+  if(S.step==='idea') return S.understood ? ['Make it more playful','For complete beginners','Make it a mini guide'] : ['A sourdough guide for busy people'];
+  if(S.step==='shape') return ['Suggest a punchier title','Add a chapter about tools','Remove the last chapter'];
+  if(S.step==='write' && !S.gen.running) return ['Make chapter 1 shorter','Add an example to chapter 3','Make it more personal','Try a darker cover','Add a chapter for kids'];
+  if(S.step==='publish') return ['Make the description shorter'];
+  return [];
+}
+function renderCoChips(){ $('coChips').innerHTML = coSuggestions().map(s=>`<button class="chip" data-co="${esc(s)}">${esc(s)}</button>`).join(''); }
+function coAsk(text){
+  S.co.push({from:'me', text}); renderCo();
+  const my=epoch; S.co.push({from:'ai', text:'…'}); renderCo();
+  setTimeout(()=>{ if(my!==epoch) return; S.co.pop(); coHandle(text); render(); renderCo(); }, 650);
+}
+function coHandle(text){
+  const t=text.toLowerCase();
+  const m=t.match(/chapter (\d+)/); const ci = m ? Math.min(+m[1]-1, chs().length-1) : S.view.chapter;
+  const written = S.gen.started && !S.gen.running;
+  if(S.step==='idea'){
+    if(!S.understood){ S.idea=text.length>15?text:S.idea||text; if(text.split(/\s+/).length<4){ S.clarify=true; coSay('Happy to help — who is this book for? Pick one on the left.'); } else { S.understood=true; S.clarify=false; coSay('Got it. Check what I understood on the left.'); } return; }
+    if(/playful|fun/.test(t)){ S.chips.tone=1; return coSay('Switched the tone to playful.'); }
+    if(/beginner/.test(t)){ S.chips.audience=0; return coSay('Writing for complete beginners.'); }
+    if(/mini|short/.test(t)){ S.chips.length=1; return coSay('Making it a mini guide (4 chapters).'); }
+  }
+  if(/title/.test(t)){ pushHistory('Change title'); const i=(TITLES.findIndex(x=>x.t===S.book.title)+1)%TITLES.length; S.book.title=TITLES[i].t; S.book.subtitle=TITLES[i].s; return coSay(`How about “${TITLES[i].t}”? It’s on the cover now.`, true); }
+  if(/add|about/.test(t) && /chapter/.test(t)){
+    const key = /tool/.test(t)?'tools':/kid|child/.test(t)?'kids':/leftover|discard/.test(t)?'leftover':null;
+    const about = t.match(/about (.+)$/);
+    if(key && !chs().some(c=>c.key===key)){ const ch=addChapter(key); return coSay(`Added “${ch.title}” at the end${written?' and I’m writing it now':''}.`, true); }
+    if(about){ const title=about[1].replace(/^\w/,c=>c.toUpperCase()); const ch=addChapter(null,title); return coSay(`Added “${ch.title}”.`, true); }
+  }
+  if(/remove|delete/.test(t) && /chapter/.test(t)){
+    if(chs().length<=3) return coSay('A book needs at least 3 chapters, so I kept them all.');
+    const i = /last/.test(t) ? chs().length-1 : ci; const title=chs()[i].title; pushHistory('Remove chapter'); chs().splice(i,1); S.view.chapter=Math.min(S.view.chapter,chs().length-1); return coSay(`Removed “${title}”.`, true);
+  }
+  if(/cover|dark|colou?r/.test(t)){
+    pushHistory('Cover change');
+    if(/dark|night/.test(t)) S.book.cover.pal=2; else if(/green|forest/.test(t)) S.book.cover.pal=1; else if(/pink|blush|light/.test(t)) S.book.cover.pal=3; else shuffleCover(true);
+    if(S.step==='write') S.view.mode='cover';
+    return coSay(`Changed the cover to “${PALETTES[S.book.cover.pal].name}”.`, true);
+  }
+  if(written){
+    const kind = /short|concise|trim/.test(t)?'shorter' : /example|practical/.test(t)?'practical' : /personal|story|warm|friend/.test(t)?'personal' : /fresh|again|rewrite|different/.test(t)?'fresh' : null;
+    if(kind){ S.view.chapter=ci; S.view.mode='pages'; S.view.tab='text'; chapterRewrite(ci, kind); return coSay(`Rewriting chapter ${ci+1} — ${CH_KIND[kind].toLowerCase()}. The old version stays in its history.`, true); }
+  } else if(/short|example|personal|rewrite/.test(t)) return coSay('I can do that once the book is written. For now, shape the title and chapters.');
+  coSay('I’m not sure what to change there. Try something specific, like “make chapter 2 shorter” or “a darker cover”.');
+}
+function shuffleCover(silent){
+  if(!silent) pushHistory('Shuffle cover');
+  const c=S.book.cover; let n;
+  do { n={layout:LAYOUTS[Math.floor(Math.random()*4)][0], pal:Math.floor(Math.random()*4), font:Object.keys(FONTS)[Math.floor(Math.random()*3)], motif:c.motif}; } while(n.layout===c.layout && n.pal===c.pal && n.font===c.font);
+  S.book.cover=n;
+}
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+document.addEventListener('click', e=>{
+  const co=e.target.closest('[data-co]'); if(co){ coAsk(co.dataset.co); return; }
+  const para=e.target.closest('[data-para]');
+  if(para && !e.target.closest('[data-act]') && !S.editing && S.step==='write'){
+    const ci=+para.dataset.ci, p=+para.dataset.para; const ch=chs()[ci];
+    if(ch.status!=='done') return;
+    if(ch.paras[p].startsWith('[')){ S.editing={ci,p}; S.sel=null; focusEdit(); return; }
+    S.pending=null; S.sel = (S.sel&&S.sel.ci===ci&&S.sel.p===p) ? null : {ci,p}; renderDesk(); return;
+  }
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  if(el.tagName==='INPUT' && el.type==='checkbox'){ act(el.dataset.act, el); return; }
+  act(el.dataset.act, el);
+});
+function focusEdit(){
+  renderDesk(true);
+  const p=document.querySelector(`[data-para="${S.editing.p}"][data-ci="${S.editing.ci}"]`); if(!p) return;
+  p.focus();
+  const r=document.createRange(); r.selectNodeContents(p); r.collapse(false); const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+function act(a, el){
+  const i=+el.dataset.i, v=el.dataset.v;
+  switch(a){
+    case 'restart': if(confirm('Start over with an empty book? This clears everything.')){ epoch++; history=[]; S=fresh(); render(); renderCo(); } return;
+    case 'undo': undo(); renderCo(); return;
+    case 'goto-step':
+      if(v==='write' && !S.gen.started) return;
+      if(v==='publish' && S.gen.running) return;
+      S.step=v; S.sel=null; S.pending=null; if(v==='write') S.view.mode='pages'; break;
+    case 'example': S.idea=DEMO_IDEA; S.clarify=false; S.understood=true; break;
+    case 'analyze': {
+      const words=S.idea.trim().split(/\s+/).filter(Boolean).length;
+      if(!S.idea.trim()){ toast('Type a sentence about your book — or try the example'); return; }
+      if(words<4){ S.clarify=true; S.understood=false; } else { S.clarify=false; S.understood=true; }
+      break; }
+    case 'clarify': S.idea=S.idea.trim()+' for '+v.toLowerCase(); S.clarify=false; S.understood=true; break;
+    case 'cycle': { const k=el.dataset.k; S.chips[k]=(S.chips[k]+1)%OPTS[k].length; break; }
+    case 'to-shape': S.step='shape'; coSay('Here’s a plan. Pick a title, then drag, rename or remove chapters.'); break;
+    case 'title': pushHistory('Change title'); S.book.title=TITLES[i].t; S.book.subtitle=TITLES[i].s; break;
+    case 'del': if(chs().length<=3){ toast('A book needs at least 3 chapters'); return; } pushHistory('Remove chapter'); chs().splice(i,1); S.view.chapter=Math.min(S.view.chapter,chs().length-1); break;
+    case 'add-open': S.adding=true; break;
+    case 'add-close': S.adding=false; break;
+    case 'add': addChapter(v); return;
+    case 'add-custom': { const val=$('customCh').value.trim(); if(!val){ toast('Name the chapter first'); return; } addChapter(null,val); return; }
+    case 'write': startWriting(); return;
+    case 'open-ch': S.view.chapter=i; S.view.mode='pages'; S.sel=null; S.pending=null; if(!S.gen.running) S.view.tab='text'; break;
+    case 'nav': S.view.chapter=Math.max(0,Math.min(chs().length-1,S.view.chapter+(+v))); S.sel=null; S.pending=null; break;
+    case 'mode': S.view.mode=v; break;
+    case 'tab': S.view.tab=v; S.view.mode = v==='cover' ? 'cover' : 'pages'; break;
+    case 'retry': { const ch=chs().find(c=>c.id===+el.dataset.id); if(!ch) return; S.view.chapter=chs().indexOf(ch); S.view.mode='pages'; writeChapter(ch,false,()=>{ S.gen.msg='All chapters written'; coSay('Fixed — “'+ch.title+'” is written now.'); render(); }, epoch,false); return; }
+    case 'fix-failed': { const ch=chs().find(c=>c.status!=='done'); S.step='write'; S.view.chapter=chs().indexOf(ch); S.view.mode='pages'; break; }
+    case 'para': applyPara(v, S.sel.ci, S.sel.p, 0); return;
+    case 'keep': S.pending=null; toast('Kept'); break;
+    case 'again': { const pd=S.pending; undo(); applyPara(pd.kind, pd.ci, pd.p, pd.v+1); return; }
+    case 'edit': S.editing={...S.sel}; S.sel=null; focusEdit(); return;
+    case 'edit-done': {
+      const ed=S.editing, p=document.querySelector(`[data-para="${ed.p}"][data-ci="${ed.ci}"]`); const txt=p?p.innerText.trim():'';
+      const ch=chs()[ed.ci]; S.editing=null;
+      if(txt && txt!==ch.paras[ed.p]){ pushHistory(`Paragraph ${ed.p+1} · Edited by you`); ch.paras[ed.p]=txt; ch.versions.push({label:`Paragraph ${ed.p+1} · Edited by you`, paras:[...ch.paras]}); toast('Saved your edit'); }
+      break; }
+    case 'edit-cancel': S.editing=null; break;
+    case 'para-ask': { const inp=$('coIn'); inp.value=`Rewrite paragraph ${S.sel.p+1} of chapter ${S.sel.ci+1} to `; inp.focus(); return; }
+    case 'ch-rewrite': chapterRewrite(S.view.chapter, v); return;
+    case 'restore': { const ch=curCh(); pushHistory('Restore version'); ch.paras=[...ch.versions[i].paras]; ch.versions.push({label:'Restored: '+ch.versions[i].label, paras:[...ch.paras]}); S.pending=null; toast('Version restored'); break; }
+    case 'cover': { const k=el.dataset.k; pushHistory('Cover · '+k); S.book.cover[k]= k==='pal' ? +v : v; break; }
+    case 'shuffle': shuffleCover(false); break;
+    case 'theme': pushHistory('Interior style'); S.book.style.theme=v; break;
+    case 'dropcap': pushHistory('Drop cap'); S.book.style.dropcap=el.checked; break;
+    case 'pdf': buildPrint(); window.print(); return;
+    case 'link': { const url='https://folio.book/b/'+S.book.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); navigator.clipboard?.writeText(url).catch(()=>{}); toast('Link copied: '+url.replace('https://','')); return; }
+    case 'social': toast(v==='email'?'Would open an email with the link and cover':'Would open LinkedIn with the cover preview'); return;
+    case 'copy-desc': navigator.clipboard?.writeText($('desc').value).catch(()=>{}); toast('Description copied'); return;
+  }
+  render();
+}
+/* text inputs: update state without destroying focus */
+document.addEventListener('input', e=>{
+  const k=e.target.dataset.bind; if(k){ S[k]=e.target.value; if(k==='idea'&&S.understood&&e.target.value.trim().split(/\s+/).length<4){} return; }
+  const f=e.target.dataset.field; if(f){ S.book[f]=e.target.value; renderDesk(); renderTop(); }
+});
+document.addEventListener('focusin', e=>{ if(e.target.dataset.field){ e.target._pre=clone(S.book); } });
+document.addEventListener('change', e=>{
+  const f=e.target.dataset.field;
+  if(f && e.target._pre){ history.push({label:'Edit '+f, book:e.target._pre}); e.target._pre=null; if(S.step==='shape') renderPanel(); renderTop(); }
+  const r=e.target.dataset.rename;
+  if(r!==undefined){ const ch=chs()[+r]; const v=e.target.value.trim(); if(v && v!==ch.title){ pushHistory('Rename chapter'); ch.title=v; render(); } else e.target.value=ch.title; }
+});
+/* drag & drop chapters */
+let dragFrom=null;
+document.addEventListener('dragstart', e=>{ const li=e.target.closest('[data-drag]'); if(!li) return; dragFrom=+li.dataset.drag; li.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+document.addEventListener('dragover', e=>{ const li=e.target.closest('[data-drag]'); if(!li||dragFrom===null) return; e.preventDefault(); document.querySelectorAll('.outline li.over').forEach(x=>x.classList.remove('over')); li.classList.add('over'); });
+document.addEventListener('drop', e=>{ const li=e.target.closest('[data-drag]'); if(!li||dragFrom===null) return; e.preventDefault(); const to=+li.dataset.drag;
+  if(to!==dragFrom){ pushHistory('Reorder chapters'); const cur=curCh(); const [m]=chs().splice(dragFrom,1); chs().splice(to,0,m); if(cur) S.view.chapter=chs().indexOf(cur); }
+  dragFrom=null; render(); });
+document.addEventListener('dragend', ()=>{ dragFrom=null; document.querySelectorAll('.dragging,.over').forEach(x=>x.classList.remove('dragging','over')); });
+/* co-author form + keyboard undo */
+$('coForm').addEventListener('submit', e=>{ e.preventDefault(); const v=$('coIn').value.trim(); if(!v) return; $('coIn').value=''; coAsk(v); });
+document.addEventListener('keydown', e=>{
+  if((e.metaKey||e.ctrlKey) && e.key==='z' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && !document.activeElement.isContentEditable){ e.preventDefault(); undo(); renderCo(); }
+  if(e.key==='Escape'){ if(S.sel||S.editing){ S.sel=null; S.editing=null; renderDesk(); } }
+});
+
+/* =========================================================
+   PDF (real, via the browser's print-to-PDF)
+   ========================================================= */
+function buildPrint(){
+  const b=S.book, th=THEMES[b.style.theme];
+  $('print').innerHTML = `<div class="p-cover">${coverSVG(b)}</div>
+    <div class="p-title"><h1 style="font-family:${th.head}">${esc(b.title)}</h1><p>${esc(b.subtitle)}</p><p style="margin-top:1in">${esc(b.author)}</p></div>
+    <div class="p-toc"><h2 style="font-family:${th.head}">Contents</h2><ol>${chs().map(c=>`<li>${esc(c.title)}</li>`).join('')}</ol></div>
+    ${chs().filter(c=>c.status==='done').map((c,i)=>`<section class="p-ch" style="font-family:${th.body}"><div class="eyebrow">CHAPTER ${i+1}</div><h2 style="font-family:${th.head}">${esc(c.title)}</h2>${c.paras.filter(p=>!p.startsWith('[')).map(p=>`<p>${esc(p)}</p>`).join('')}</section>`).join('')}`;
+}
+window.addEventListener('beforeprint', buildPrint);
+
+/* boot */
+S=fresh(); render(); renderCo();
+</script>
+</body>
+</html>

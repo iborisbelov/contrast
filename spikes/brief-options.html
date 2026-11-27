@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brief options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Manrope:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<style>
+:root{--canvas:#F2EFE8;--panel:#F5F2EB;--surface:#fff;--ink:#1E1D1B;--ink-2:#3A3834;--muted:#67635B;--faint:#A39E94;--line:#E4DFD4;--line-2:#ECE8DF;
+  --coral:#E25C55;--coral-ink:#B8433D;--coral-soft:#F9E2DE;--green:#3E7B57;--green-soft:#E3EEE6;
+  --f-display:"Gilda Display",serif;--f-ui:"Manrope",system-ui,sans-serif;--f-book:"Newsreader",serif;--ease:cubic-bezier(.2,.7,.2,1);
+  --e1:0 1px 2px rgba(60,45,25,.06),0 1px 1px rgba(60,45,25,.04);--e2:0 .75rem 2.2rem -.9rem rgba(60,45,25,.3),0 .15rem .45rem -.15rem rgba(60,45,25,.1)}
+html{font-size:clamp(12px, min(100vw / 120, 100vh / 60), 22px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--f-ui);font-size:1rem;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+svg.lucide{width:1.1em;height:1.1em;stroke-width:1.75;flex:none}
+h1{font-family:var(--f-display);font-weight:400;font-size:2.2rem;margin:0}
+.top{padding:2rem 2.5rem 1rem;display:flex;align-items:flex-end;gap:2rem}
+.top p{color:var(--muted);margin:.4rem 0 0;max-width:52rem}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;padding:1rem 2.5rem 2.5rem;align-items:start}
+.col{display:flex;flex-direction:column;gap:.9rem}
+.vhead{display:flex;align-items:center;gap:.6rem}
+.vhead b{width:1.8rem;height:1.8rem;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:.85rem}
+.vhead h2{font-family:var(--f-display);font-weight:400;font-size:1.45rem;margin:0}
+.vsub{font-size:.85rem;color:var(--muted);margin-top:-.4rem}
+/* the panel frame each variant sits in (same as the app's left panel) */
+.frame{background:var(--panel);border-radius:1.4rem;padding:1.5rem;border:1px solid var(--line);min-height:36rem}
+.idea-l{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.idea{margin:.4rem 0 1.1rem;padding:.8rem 1rem;background:var(--surface);border-radius:.8rem;border:1.5px solid var(--line);font-family:var(--f-display);font-size:1.15rem;line-height:1.35}
+.idea small{display:block;font-family:var(--f-ui);font-size:.75rem;color:var(--muted);margin-top:.35rem}
+.card{background:var(--surface);border-radius:1.1rem;padding:1.2rem;box-shadow:var(--e1)}
+.eyebrow{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:.4rem;border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:.4rem .85rem;font-size:.88rem;font-weight:500;transition:border-color .15s,background .15s}
+.chip:hover{border-color:var(--ink)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.btn{display:inline-flex;align-items:center;gap:.5rem;border:none;border-radius:99px;padding:.7rem 1.2rem;font-weight:600;font-size:.92rem;background:var(--ink);color:#fff}
+.btn.ghost{background:transparent;color:var(--muted);padding:.7rem .6rem}
+.addstory{display:inline-flex;align-items:center;gap:.4rem;border:none;background:none;color:var(--coral-ink);font-weight:600;font-size:.88rem;padding:0;margin-top:1rem}
+.story{width:100%;margin-top:.6rem;border:1.5px solid var(--line);border-radius:.8rem;padding:.7rem .85rem;font:inherit;font-size:.9rem;resize:vertical}
+.story:focus{outline:none;border-color:var(--ink)}
+.pc{font-size:.85rem;line-height:1.45;color:var(--ink-2);background:rgba(255,255,255,.55);border-radius:.9rem;padding:.9rem 1rem}
+.pc div{display:flex;gap:.5rem;margin:.25rem 0}
+.pc .p svg{color:var(--green)} .pc .m svg{color:var(--coral-ink)}
+.foot{display:flex;justify-content:flex-end;margin-top:1.2rem}
+@keyframes rise{from{opacity:0;transform:translateY(.5rem)}}
+.rise{animation:rise .35s var(--ease) backwards}
+
+/* A — editable sentence */
+.sentence{font-family:var(--f-display);font-size:1.5rem;line-height:1.55;margin:.5rem 0 .2rem}
+.slot{position:relative;display:inline;border:none;background:none;padding:0 .1rem;font:inherit;color:var(--ink);border-bottom:2px dotted var(--coral);border-radius:2px;transition:background .15s}
+.slot:hover,.slot.open{background:var(--coral-soft)}
+.slot-hint{font-size:.8rem;color:var(--muted);display:flex;gap:.4rem;align-items:center}
+.pop{position:absolute;z-index:5;margin-top:.35rem;background:var(--surface);border-radius:1rem;box-shadow:var(--e2);padding:.4rem;min-width:15rem;font-family:var(--f-ui);font-size:.9rem;animation:rise .2s var(--ease) backwards}
+.pop button{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;border:none;background:none;border-radius:.6rem;padding:.55rem .7rem}
+.pop button:hover{background:var(--line-2)}
+.pop button.on{background:var(--ink);color:#fff}
+.pop button span{font-size:.78rem;color:var(--muted);font-family:var(--f-book);font-style:italic}
+.pop button.on span{color:#D6D0C6}
+.pop input{width:100%;border:1.5px solid var(--line);border-radius:.6rem;padding:.5rem .6rem;font:inherit;font-size:.85rem;margin-top:.3rem}
+.slotwrap{position:relative;display:inline}
+
+/* B — labelled rows */
+.row{padding:.9rem 0;border-top:1px solid var(--line-2)}
+.row:first-of-type{border-top:none;padding-top:.3rem}
+.row label{display:flex;align-items:baseline;gap:.5rem;font-weight:700;font-size:.9rem;margin-bottom:.5rem}
+.row label small{font-weight:400;color:var(--muted);font-size:.78rem}
+.seg{display:flex;flex-wrap:wrap;gap:.35rem}
+.lens{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem}
+.len{border:1.5px solid var(--line);background:var(--surface);border-radius:.8rem;padding:.6rem;text-align:left;font-size:.8rem;color:var(--muted)}
+.len b{display:block;font-size:.92rem;color:var(--ink)}
+.len.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+
+/* C — taste test */
+.summary{font-family:var(--f-display);font-size:1.25rem;line-height:1.35;margin:.4rem 0 1rem}
+.voice{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:1rem;padding:.85rem 1rem;margin-top:.5rem;transition:border-color .15s,transform .2s var(--ease)}
+.voice:hover{transform:translateY(-1px);border-color:var(--faint)}
+.voice.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.voice q{display:block;font-family:var(--f-book);font-size:1rem;line-height:1.45;quotes:"\201C" "\201D"}
+.voice small{display:flex;align-items:center;gap:.4rem;margin-top:.45rem;font-size:.75rem;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.voice.on small{color:var(--ink)}
+.mini-l{font-size:.78rem;font-weight:700;color:var(--muted);margin:1rem 0 .4rem}
+
+/* D — one question at a time */
+.dots{display:flex;gap:.35rem;margin-bottom:.8rem}
+.dots i{width:1.6rem;height:.3rem;border-radius:99px;background:var(--line);transition:background .3s}
+.dots i.on{background:var(--coral)}
+.q{font-family:var(--f-display);font-size:1.45rem;line-height:1.25;margin:0 0 .9rem}
+.ans{display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:1rem;padding:.8rem .9rem;margin-top:.45rem;transition:border-color .15s,transform .2s var(--ease)}
+.ans:hover{border-color:var(--ink);transform:translateX(2px)}
+.ans .ic{width:2.2rem;height:2.2rem;border-radius:50%;background:var(--line-2);display:grid;place-items:center;flex:none}
+.ans b{display:block;font-size:.95rem}
+.ans span{font-size:.8rem;color:var(--muted)}
+.ans q{font-family:var(--f-book);font-size:.95rem;quotes:"\201C" "\201D"}
+.dnav{display:flex;justify-content:space-between;margin-top:1rem}
+.sumrow{display:flex;align-items:center;gap:.7rem;padding:.7rem 0;border-top:1px solid var(--line-2);font-size:.92rem}
+.sumrow:first-of-type{border-top:none}
+.sumrow span{color:var(--muted);width:5rem;font-size:.8rem;flex:none}
+.sumrow b{flex:1;font-weight:600}
+.sumrow button{border:none;background:none;color:var(--coral-ink);font-weight:600;font-size:.82rem}
+</style>
+</head>
+<body>
+<div class="top">
+  <div><h1>“Here’s what I’ll make”: four ways</h1>
+  <p>Same input (“A simple sourdough guide for people with full-time jobs”), same choices (audience, tone, length, optional story). Every variant is clickable. The idea box above each one also fixes the “idea looks like a title” confusion.</p></div>
+</div>
+<div class="grid">
+  <section class="col" id="A"></section>
+  <section class="col" id="B"></section>
+  <section class="col" id="C"></section>
+  <section class="col" id="D"></section>
+</div>
+<script>
+const ico=n=>`<i data-lucide="${n}"></i>`;
+const AUD=[{k:'busy',t:'Busy beginners',d:'Never baked bread, little free time',ic:'clock'},{k:'home',t:'Home bakers',d:'Bake already, new to sourdough',ic:'chef-hat'},{k:'parents',t:'Parents',d:'Want to bake with their kids',ic:'baby'}];
+const TONE=[{k:'warm',t:'Warm & practical',phrase:'warm, practical',s:'Most people think sourdough needs a free weekend. It doesn’t. It needs a rhythm.'},
+            {k:'play',t:'Playful',phrase:'playful',s:'Good news: a sourdough starter is basically a very low-maintenance pet.'},
+            {k:'direct',t:'Straight to the point',phrase:'direct, no-fluff',s:'Sourdough fits a 9-to-5. Ten minutes in the morning, fifteen at night. Here’s how.'}];
+const LEN=[{k:'mini',t:'Mini guide',ch:4,pg:'~18 pages',rd:'15 min read'},{k:'short',t:'Short guide',ch:6,pg:'~34 pages',rd:'30 min read'},{k:'full',t:'Full guide',ch:8,pg:'~44 pages',rd:'45 min read'}];
+const IDEA=`<div><div class="idea-l">Your idea</div><div class="idea">A simple sourdough guide for people with full-time jobs<small>Not the title. You’ll pick a title in the next step.</small></div></div>`;
+const story=(st,v)=>st.storyOpen?`<textarea class="story rise" rows="2" data-v="${v}" data-story placeholder="e.g. I bake before my 8am commute. The trick is an overnight rise in the fridge.">${st.story||''}</textarea>`:`<button class="addstory" data-v="${v}" data-a="story">${ico('plus')}Add a tip only you know <span style="font-weight:400;color:var(--muted)">(optional)</span></button>`;
+const pc=(p,m)=>`<div class="pc">${p.map(x=>`<div class="p">${ico('check')}<span>${x}</span></div>`).join('')}${m.map(x=>`<div class="m">${ico('minus')}<span>${x}</span></div>`).join('')}</div>`;
+const head=(n,t,s)=>`<div class="vhead"><b>${n}</b><h2>${t}</h2></div><div class="vsub">${s}</div>`;
+const st={A:{aud:0,tone:0,len:1,open:null},B:{aud:0,tone:0,len:1},C:{aud:0,tone:0,len:1},D:{q:0,aud:null,tone:null,len:null}};
+
+/* A — the sentence is the form */
+function A(){ const s=st.A, a=AUD[s.aud], t=TONE[s.tone], l=LEN[s.len];
+  const slot=(key,label,opts)=>`<span class="slotwrap"><button class="slot ${s.open===key?'open':''}" data-v="A" data-a="open" data-k="${key}">${label}</button>${s.open===key?`<div class="pop">${opts}</div>`:''}</span>`;
+  const audOpts=AUD.map((x,i)=>`<button class="${i===s.aud?'on':''}" data-v="A" data-a="set" data-k="aud" data-i="${i}">${x.t.toLowerCase()}<span>${x.d}</span></button>`).join('')+`<input placeholder="Someone else…" data-v="A">`;
+  const toneOpts=TONE.map((x,i)=>`<button class="${i===s.tone?'on':''}" data-v="A" data-a="set" data-k="tone" data-i="${i}">${x.phrase}<span>“${x.s}”</span></button>`).join('');
+  const lenOpts=LEN.map((x,i)=>`<button class="${i===s.len?'on':''}" data-v="A" data-a="set" data-k="len" data-i="${i}">${x.t.toLowerCase()} · ${x.ch} chapters<span style="font-style:normal;font-family:var(--f-ui)">${x.pg} · ${x.rd}</span></button>`).join('');
+  return `${head('A','Editable sentence','The summary is the form. Tap any underlined words.')}
+  <div class="frame">${IDEA}<div class="card"><div class="eyebrow">Here’s what I’ll write</div>
+    <p class="sentence">A ${slot('len',l.t.toLowerCase(),lenOpts)} on sourdough for ${slot('aud',a.t.toLowerCase(),audOpts)}, in a ${slot('tone',t.phrase,toneOpts)} voice.</p>
+    <div class="slot-hint">${ico('mouse-pointer-click')}Tap the underlined words to change them</div>
+    ${story(s,'A')}</div>
+    <div class="foot"><button class="btn">Looks right ${ico('arrow-up-right')}</button></div></div>
+  ${pc(['Reads like a person, one glance to check','Edit in place, nothing hidden behind labels','Fewest pixels'],['Underlined words need a hint to be discovered','Options live in popovers, not visible at once'])}`;
+}
+/* B — explicit labelled rows */
+function B(){ const s=st.B;
+  return `${head('B','Labelled choices','A short form where every option is visible.')}
+  <div class="frame">${IDEA}<div class="card"><div class="eyebrow">Shape your book</div>
+    <div class="row"><label>Who is it for?</label><div class="seg">${AUD.map((x,i)=>`<button class="chip ${i===s.aud?'on':''}" data-v="B" data-a="set" data-k="aud" data-i="${i}">${x.t}</button>`).join('')}<button class="chip">${ico('plus')}Other</button></div></div>
+    <div class="row"><label>How should it sound?</label><div class="seg">${TONE.map((x,i)=>`<button class="chip ${i===s.tone?'on':''}" data-v="B" data-a="set" data-k="tone" data-i="${i}">${x.t}</button>`).join('')}</div></div>
+    <div class="row"><label>How long? <small>you can add or cut chapters later</small></label><div class="lens">${LEN.map((x,i)=>`<button class="len ${i===s.len?'on':''}" data-v="B" data-a="set" data-k="len" data-i="${i}"><b>${x.t}</b>${x.ch} chapters<br>${x.pg}</button>`).join('')}</div></div>
+    ${story(s,'B')}</div>
+    <div class="foot"><button class="btn">Looks right ${ico('arrow-up-right')}</button></div></div>
+  ${pc(['Zero guessing: every field labelled, every option shown','Length shown as chapters and pages, not jargon','Easiest to build and test'],['Feels like a form, the least “magic”','Tone still chosen by label, not by feel'])}`;
+}
+/* C — choose the voice by example */
+function C(){ const s=st.C, a=AUD[s.aud], l=LEN[s.len];
+  return `${head('C','Taste test','Pick how it should sound by reading it.')}
+  <div class="frame">${IDEA}<div class="card"><div class="eyebrow">Which one sounds like you?</div>
+    ${TONE.map((x,i)=>`<button class="voice ${i===s.tone?'on':''}" data-v="C" data-a="set" data-k="tone" data-i="${i}"><q>${x.s}</q><small>${i===s.tone?ico('circle-check'):ico('circle')}${x.t}</small></button>`).join('')}
+    <div class="mini-l">For</div><div class="chips">${AUD.map((x,i)=>`<button class="chip ${i===s.aud?'on':''}" data-v="C" data-a="set" data-k="aud" data-i="${i}">${x.t}</button>`).join('')}</div>
+    <div class="mini-l">Length</div><div class="chips">${LEN.map((x,i)=>`<button class="chip ${i===s.len?'on':''}" data-v="C" data-a="set" data-k="len" data-i="${i}">${x.ch} chapters · ${x.pg}</button>`).join('')}</div>
+    ${story(s,'C')}</div>
+    <div class="foot"><button class="btn">Looks right ${ico('arrow-up-right')}</button></div></div>
+  ${pc(['Non-writers choose by feel, not by words like “tone”','Proves the AI understood the idea (sample in their topic)','Strongest “wow” moment before generation'],['Taller block, needs scrolling on small screens','Samples must be generated per idea (simulated here)'])}`;
+}
+/* D — one question at a time */
+function D(){ const s=st.D, done=s.q>2;
+  const qs=[
+    ['Who’s going to read it?', AUD.map((x,i)=>`<button class="ans" data-v="D" data-a="ans" data-k="aud" data-i="${i}"><span class="ic">${ico(x.ic)}</span><div><b>${x.t}</b><span>${x.d}</span></div></button>`).join('')],
+    ['How should it sound?', TONE.map((x,i)=>`<button class="ans" data-v="D" data-a="ans" data-k="tone" data-i="${i}"><div><q>${x.s}</q><span style="display:block;margin-top:.3rem;font-weight:700">${x.t}</span></div></button>`).join('')],
+    ['How long should it be?', LEN.map((x,i)=>`<button class="ans" data-v="D" data-a="ans" data-k="len" data-i="${i}"><span class="ic">${ico('book-open')}</span><div><b>${x.t}</b><span>${x.ch} chapters · ${x.pg} · ${x.rd}</span></div></button>`).join('')]];
+  const body = done ? `<div class="eyebrow">Here’s what I’ll write</div>
+      ${[['For',AUD[s.aud].t,0],['Sounds',TONE[s.tone].t,1],['Length',LEN[s.len].t+' · '+LEN[s.len].ch+' chapters',2]].map(([k,v,q])=>`<div class="sumrow"><span>${k}</span><b>${v}</b><button data-v="D" data-a="goto" data-i="${q}">Change</button></div>`).join('')}
+      ${story(s,'D')}`
+    : `<div class="dots">${[0,1,2].map(i=>`<i class="${i<=s.q?'on':''}"></i>`).join('')}</div><p class="q">${qs[s.q][0]}</p><div class="rise" key="${s.q}">${qs[s.q][1]}</div>
+       <div class="dnav"><button class="btn ghost" data-v="D" data-a="back" ${s.q===0?'style="visibility:hidden"':''}>${ico('arrow-left')}Back</button><button class="btn ghost" data-v="D" data-a="skip">Skip, use my best guess</button></div>`;
+  return `${head('D','One question at a time','Three quick taps, then a summary.')}
+  <div class="frame">${IDEA}<div class="card">${body}</div>
+    ${done?`<div class="foot"><button class="btn">Looks right ${ico('arrow-up-right')}</button></div>`:''}</div>
+  ${pc(['Lowest effort per screen, impossible to get lost','Great for first-timers; “Skip” keeps it fast for others','Summary at the end doubles as confirmation'],['Three extra clicks before seeing anything','Hides the full picture until the end'])}`;
+}
+const R={A,B,C,D};
+function render(v){ (v?[v]:'ABCD'.split('')).forEach(k=>document.getElementById(k).innerHTML=R[k]()); lucide.createIcons({attrs:{'stroke-width':1.75}}); }
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-a]');
+  if(!el){ if(st.A.open && !e.target.closest('.pop')){ st.A.open=null; render('A'); } return; }
+  const v=el.dataset.v, s=st[v], a=el.dataset.a, k=el.dataset.k, i=+el.dataset.i;
+  if(a==='open') s.open = s.open===k ? null : k;
+  if(a==='set'){ s[k]=i; if(v==='A') s.open=null; }
+  if(a==='story') s.storyOpen=true;
+  if(a==='ans'){ s[k]=i; s.q++; }
+  if(a==='back') s.q=Math.max(0,s.q-1);
+  if(a==='skip'){ s.aud??=0; s.tone??=0; s.len??=1; s.q=3; }
+  if(a==='goto') s.q=i;
+  render(v);
+  if(a==='story') document.querySelector(`#${v} textarea`)?.focus();
+});
+document.addEventListener('input',e=>{ if(e.target.dataset.story!==undefined) st[e.target.dataset.v].story=e.target.value; });
+render();
+</script>
+</body>
+</html>
