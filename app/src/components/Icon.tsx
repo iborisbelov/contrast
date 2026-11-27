@@ -3,7 +3,7 @@ import {
   CircleCheck, Clock, Copy, FileDown, FileText, Flag, Heart, History, Image, Lightbulb, Link, Linkedin, ListChecks, ListOrdered,
   Loader, Mail, MessageCircleQuestion, Minimize2, MousePointerClick, PenLine, Pencil, Plus, RefreshCw, RotateCcw, Send,
   ShieldCheck, Shuffle, Sparkles, TriangleAlert, Type, Undo2, UserPen, X, Feather, GripVertical,
-  Library, BookmarkPlus, Trash2, Sprout, Users, Briefcase, Share2, Palette, type LucideIcon,
+  Library, BookmarkPlus, Trash2, Sprout, Users, Briefcase, Share2, Palette, Info, type LucideIcon,
 } from 'lucide-react'
 
 const ICONS = {
@@ -14,7 +14,7 @@ const ICONS = {
   'list-ordered': ListOrdered, loader: Loader, mail: Mail, 'message-circle-question': MessageCircleQuestion, 'minimize-2': Minimize2,
   'mouse-pointer-click': MousePointerClick, 'pen-line': PenLine, pencil: Pencil, plus: Plus, 'refresh-cw': RefreshCw, 'rotate-ccw': RotateCcw,
   send: Send, 'shield-check': ShieldCheck, shuffle: Shuffle, sparkles: Sparkles, 'triangle-alert': TriangleAlert, type: Type,
-  'undo-2': Undo2, 'user-pen': UserPen, x: X, feather: Feather, 'grip-vertical': GripVertical, library: Library, 'bookmark-plus': BookmarkPlus, trash: Trash2, sprout: Sprout, users: Users, briefcase: Briefcase, share: Share2, palette: Palette,
+  'undo-2': Undo2, 'user-pen': UserPen, x: X, feather: Feather, 'grip-vertical': GripVertical, library: Library, 'bookmark-plus': BookmarkPlus, trash: Trash2, sprout: Sprout, users: Users, briefcase: Briefcase, share: Share2, palette: Palette, info: Info,
 } satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS

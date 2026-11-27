@@ -10,6 +10,7 @@ import { SharedBook } from './components/SharedBook'
 import { SystemPage } from './components/pages/SystemPage'
 import { ProcessPage } from './components/pages/ProcessPage'
 import { useEffect as useHashEffect, useState } from 'react'
+import { Icon } from './components/Icon'
 
 function useShortcuts() {
   useEffect(() => {
@@ -51,6 +52,7 @@ function Studio() {
     <MotionConfig reducedMotion="user">
       <div className={`app ${mobileView === 'book' ? 'm-book' : 'm-edit'}`}>
         {screen !== 'library' && <MobileToggle />}
+        {screen !== 'library' && <MobileInfo />}
         <Rail />
         {screen === 'library' ? <Library /> : <><Panel /><Desk /></>}
       </div>
@@ -72,5 +74,21 @@ function MobileToggle() {
         Book{writing !== null && <span className="m-badge">{writing}/{book.chapters.length}</span>}
       </button>
     </div>
+  )
+}
+
+/** Phones only: the intro lives behind an info button instead of taking the first screen. */
+function MobileInfo() {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <button className="m-info" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="What is Folio?"><Icon name={open ? 'x' : 'info'} /></button>
+      {open && (
+        <div className="m-info-pop" role="dialog" aria-label="What is Folio?" onClick={() => setOpen(false)}>
+          <b>Turn what you know into a finished, designed eBook.</b>
+          <ol><li>Answer a few quick questions</li><li>I write it while you watch</li><li>Change anything, then share</li></ol>
+        </div>
+      )}
+    </>
   )
 }

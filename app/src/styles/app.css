@@ -731,3 +731,17 @@ h2{font-size:1.8rem;line-height:1.2}
   .modal-card > div:last-child{flex-direction:column-reverse}
   .modal-card > div:last-child .btn{width:100%;justify-content:center}
 }
+
+.m-info,.m-info-pop{display:none}
+@media (max-width: 760px) {
+  .intro { display: none }
+  .m-toggle { top: calc(1rem + env(safe-area-inset-top, 0px)) }
+  .m-info { display: grid; place-items: center; position: fixed; top: calc(1rem + env(safe-area-inset-top, 0px)); right: calc(1rem + env(safe-area-inset-right, 0px)); z-index: 23; width: 2.5rem; height: 2.5rem; border-radius: 50%; border: none; background: rgba(236,232,223,.95); color: var(--ink-2); box-shadow: var(--e1) }
+  .m-info svg.lucide { width: 1.15rem; height: 1.15rem }
+  .m-info-pop { display: block; position: fixed; top: calc(4rem + env(safe-area-inset-top, 0px)); right: 1rem; left: 1rem; z-index: 23; background: var(--surface); border-radius: var(--r-lg); padding: 1rem 1.1rem; box-shadow: var(--e3); animation: popUp .25s var(--ease) }
+  .m-info-pop b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 1.2rem; line-height: 1.25 }
+  .m-info-pop ol { margin: .7rem 0 0; padding-left: 1.1rem; display: grid; gap: .3rem; color: var(--ink-2); font-size: .95rem }
+  .desk-actions { top: calc(1rem + env(safe-area-inset-top, 0px)); left: 1rem; right: auto }
+  .panel-scroll { display: flex; flex-direction: column; padding-top: calc(4.6rem + env(safe-area-inset-top, 0px)); padding-bottom: 1.4rem }
+  .panel-scroll > div { margin-block: auto }
+}
