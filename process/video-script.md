@@ -38,6 +38,7 @@
 [Tab 2, отчёт — медленно прокрутить заголовки разделов]
 
 > Everything is in one cited report. I kept sourced findings separate from my own inferences, and dropped statistics I couldn’t verify.
+> For the visual side I did my own moodboard on Dribbble and Behance — reading and library apps. I didn’t copy a shot: I kept only the traits that repeated across references — warm paper, a light literary serif, one accent colour, real book objects — and turned them into the design system.
 
 ### What I learned and what it changed (0:40 – 1:30)
 [Tab 1, таблица «Research → decisions» — веди курсором по строкам, пока говоришь]

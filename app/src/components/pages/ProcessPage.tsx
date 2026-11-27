@@ -17,7 +17,7 @@ const LOG: [string, string, string, string][] = [
   ['Understand the brief', 'Read the agency’s site in parallel and found Designrr (an AI eBook tool) among Contrast’s case studies.', 'Couldn’t read the JS submission form; proposed questions the brief already answered.', 'Cut 6 stakeholder questions to 2.'],
   ['Desk research', '4 research agents in parallel: competitors, reviews, AI UX patterns, covers. ~100 sources in minutes, findings kept apart from inferences.', 'G2, Capterra, Reddit blocked automated access; Designrr’s live UI not observed.', 'Prioritised which insights become decisions (table above).'],
   ['Flow exploration', 'Built 3 clickable flows in one file (wizard, chat, growing book) to compare by feel.', 'Chat needed scripted replies; any off-script message exposed it.', 'Merged them: steps + living book + a scoped co-author.'],
-  ['Visual direction', 'Turned 6 reference shots into shared traits, a theme statement and a 12-point audit.', 'Active step looked disabled; spread collapsed at 1024px; tabs overflowed.', 'Picked the direction; fixed by container queries.'],
+  ['Visual direction', 'I collected references on Dribbble and Behance (reading and library apps). AI extracted the traits shared by 2+ shots, wrote a theme statement and a 12-point audit.', 'Active step looked disabled; spread collapsed at 1024px; tabs overflowed.', 'Picked the direction; fixed by container queries.'],
   ['Brief UX', 'Built 4 variants of the “here’s what I’ll make” step side by side.', '—', 'Chose “one question at a time” and applied it to every decision.'],
   ['React build', 'Ported the spike into Vite + React + TS with a typed store, motion and autosave.', 'Exit animation crashed the app; screens could stall in background tabs.', 'Added an error boundary, autosave, and “never wait on animation”.'],
   ['Real AI', 'Groq (gpt-oss-120b) behind a PHP proxy: briefs, plans, chapters, rewrites for any topic.', 'First model name was retired (404).', 'Key server-side only, fixed task prompts, rate limit, offline fallbacks everywhere.'],
@@ -47,7 +47,7 @@ export function ProcessPage() {
 
       <section>
         <h2>Research → decisions</h2>
-        <p className="doc-note" style={{ marginTop: 0 }}>Four desk-research tracks ran in parallel; the full report (≈6,500 words, every claim cited) is in the repo: <a href={`${REPO}/blob/main/reports/AI%20eBook%20creator%20UX%20research.md`} target="_blank" rel="noreferrer">AI eBook creator UX research</a>.</p>
+        <p className="doc-note" style={{ marginTop: 0 }}>Visual research: a moodboard from Dribbble and Behance (reading and library apps), reduced to shared traits: warm paper, a light literary serif, one accent, real book objects. Four desk-research tracks ran in parallel; the full report (≈6,500 words, every claim cited) is in the repo: <a href={`${REPO}/blob/main/reports/AI%20eBook%20creator%20UX%20research.md`} target="_blank" rel="noreferrer">AI eBook creator UX research</a>.</p>
         <div className="table">
           <div className="tr th"><span>Insight</span><span>Design decision</span><span>Source</span></div>
           {INSIGHTS.map(([a, b, c]) => <div className="tr" key={a}><span>{a}</span><span>{b}</span><span className="muted">{c}</span></div>)}

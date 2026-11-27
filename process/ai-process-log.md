@@ -100,3 +100,5 @@ A running log of how AI was used in this project: what I asked, what it produced
 
 - **Who is the user?** "Could be a content creator, a coach or just anybody who wants to create an eBook." → Confirms the brief-agnostic direction: experts without writing/design skills, any topic. Changes: the first screen now offers examples for a coach and a creator next to the sourdough demo, and the process page states the persona and scope with the client's answer.
 - **Why do people give up on tools like this?** "If that info is important for your solution, please research it." → Already the core of the research (reviews of Designrr, Gamma and others → insight-to-decision table). The process page now shows the client conversation and how it drove the research.
+
+- **Visual research note (2026-11-27):** the reference shots came from my own search on Dribbble and Behance (reading/library app concepts). The traits shared by 2+ references became the design system; no single shot was copied.
