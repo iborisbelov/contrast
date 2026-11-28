@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Icon } from '../Icon'
+import { Logo } from '../Logo'
 
 const BASE = import.meta.env.BASE_URL
 
@@ -8,7 +9,7 @@ export function DocShell({ eyebrow, title, lead, children }: { eyebrow: string; 
   return (
     <div className="doc">
       <nav className="doc-nav">
-        <a className="doc-logo" href={BASE}><span className="rail-logo"><Icon name="book-open" /></span>Folio</a>
+        <a className="doc-logo" href={BASE}><Logo size={34} />Folio</a>
         <div>
           <a href={`${BASE}#/process`} className={location.hash === '#/process' ? 'on' : ''}>Process & research</a>
           <a href={`${BASE}#/system`} className={location.hash === '#/system' ? 'on' : ''}>Design system</a>

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { stepEnabled, useStore } from '../lib/store'
 import type { Step } from '../lib/types'
 import { Icon, type IconName } from './Icon'
+import { Logo } from './Logo'
 
 const STEPS: [Step, string, IconName][] = [['idea', 'Idea', 'lightbulb'], ['shape', 'Shape', 'list-ordered'], ['write', 'Write', 'pen-line'], ['publish', 'Publish', 'send']]
 
@@ -10,7 +11,7 @@ export function Rail() {
   const cur = STEPS.findIndex(([k]) => k === s.step)
   return (
     <nav className="rail" aria-label="Steps">
-      <div className="rail-logo" title="Folio"><Icon name="book-open" /></div>
+      <div className="rail-logo" title="Folio"><Logo size={44} /></div>
       <div className="rail-steps">
         {STEPS.map(([k, label, icon], i) => {
           const reachable = stepEnabled(s, k) || k === s.step
