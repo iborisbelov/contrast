@@ -1,0 +1,85 @@
+<title>Folio Logo Options</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=Manrope:wght@400;600;700&display=swap">
+<style>
+/* Layout: the same Folio mark (rounded tile + open book) in four Rye & blush colourways, each at product sizes and in the rail. */
+:root{
+  --bg:#F2EFE8; --card:#FFFFFF; --ink:#1E1D1B; --muted:#67635B; --line:#E4DFD4;
+  --blush:#F2D6CF; --wine:#8C3B4A; --plum:#3B1F2B;
+  --f-display:"Gilda Display", Georgia, serif; --f-ui:"Manrope", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1B1A18;--card:#26241F;--ink:#F2EEE6;--muted:#A8A196;--line:#3A3732;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1B1A18;--card:#26241F;--ink:#F2EEE6;--muted:#A8A196;--line:#3A3732;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1200px;margin:0 auto}
+.eyebrow{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:400;font-size:38px;margin:8px 0 10px;text-wrap:balance}
+header p{color:var(--muted);max-width:62ch;margin:0 0 32px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.opt{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;display:grid;gap:16px;min-width:0}
+.opt h2{font-family:var(--f-display);font-weight:400;font-size:24px;margin:0}
+.stage{display:flex;align-items:center;justify-content:center;gap:14px;background:#F5F2EB;border-radius:14px;padding:26px 16px;font-family:var(--f-display);font-size:34px;color:#1E1D1B}
+.row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.row > div{display:flex;align-items:center;gap:8px}
+.tab{display:flex;align-items:center;gap:7px;background:#E8E4DC;border-radius:8px 8px 0 0;padding:6px 12px;font-size:12px;color:#3A3834}
+.rail{display:flex;flex-direction:column;align-items:center;gap:10px;background:#F5F2EB;border:1px solid #E4DFD4;border-radius:12px;padding:12px 8px}
+.rail i{width:26px;height:26px;border-radius:50%;border:1.5px solid #E4DFD4;display:block}.rail i.on{background:#E25C55;border-color:#E25C55}
+.why{margin:0;font-size:14px}
+.rec{outline:2px solid var(--wine);outline-offset:-2px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--wine);border-radius:99px;padding:3px 10px;width:max-content}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Folio · logo</span>
+    <h1>Same mark, four colourways</h1>
+    <p>The current Folio mark (rounded tile with an open book) recoloured in the cover palette from the app: blush paper, wine accent, plum ink. Each is shown large, at rail size (44px), header size (32px), as a browser tab (16px) and in the left rail.</p>
+  </header>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<template id="card">
+  <section class="opt">
+    <h2></h2>
+    <div class="stage"><span class="big"></span>Folio</div>
+    <div class="row"><div class="s44"></div><div class="s32"></div><div class="tab"><span class="s16"></span>Folio</div><div class="rail"><span class="s36"></span><i class="on"></i><i></i><i></i></div></div>
+    <p class="why"></p>
+  </section>
+</template>
+
+<script>
+const BOOK = '<path d="M12 7v14" /><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />';
+const OPTIONS = [
+  { name: 'A · Wine', tile: '#8C3B4A', icon: '#F2D6CF', rec: true,
+    why: 'Wine tile, blush book. The closest to today’s dark tile, but warm and clearly part of the cover palette. Strong at 16px.' },
+  { name: 'B · Blush', tile: '#F2D6CF', icon: '#8C3B4A',
+    why: 'Blush tile, wine book. Soft and light, like the cover itself. Quieter in the rail, so it lets the coral active step lead.' },
+  { name: 'C · Plum', tile: '#3B1F2B', icon: '#F2D6CF',
+    why: 'Plum tile, blush book. Darkest and most serious, almost like today’s black, with a hint of colour.' },
+  { name: 'D · Blush framed', tile: '#F2D6CF', icon: '#8C3B4A', frame: '#3B1F2B',
+    why: 'Blush tile with a thin plum frame like the “Classic” cover, wine book. The most bookish, but the frame disappears at 16px.' },
+];
+function mark(o, size) {
+  const frame = o.frame ? `<rect x="3" y="3" width="34" height="34" rx="8" fill="none" stroke="${o.frame}" stroke-width="1" opacity=".55"/>` : '';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" aria-hidden="true">
+    <rect width="40" height="40" rx="11" fill="${o.tile}"/>${frame}
+    <g transform="translate(8 8)" fill="none" stroke="${o.icon}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${BOOK}</g></svg>`;
+}
+const grid = document.getElementById('grid'), tpl = document.getElementById('card');
+OPTIONS.forEach(o => {
+  const n = tpl.content.cloneNode(true), sec = n.querySelector('.opt');
+  if (o.rec) { sec.classList.add('rec'); sec.insertAdjacentHTML('afterbegin', '<span class="tag">Recommended</span>'); }
+  n.querySelector('h2').textContent = o.name;
+  n.querySelector('.big').innerHTML = mark(o, 64);
+  n.querySelector('.s44').innerHTML = mark(o, 44) + '44';
+  n.querySelector('.s32').innerHTML = mark(o, 32) + '32';
+  n.querySelector('.s16').innerHTML = mark(o, 16);
+  n.querySelector('.s36').innerHTML = mark(o, 36);
+  n.querySelector('.why').textContent = o.why;
+  grid.appendChild(n);
+});
+</script>

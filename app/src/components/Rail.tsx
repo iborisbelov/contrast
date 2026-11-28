@@ -11,7 +11,7 @@ export function Rail() {
   const cur = STEPS.findIndex(([k]) => k === s.step)
   return (
     <nav className="rail" aria-label="Steps">
-      <div className="rail-logo" title="Folio"><Logo size={44} /></div>
+      <div className="rail-logo" title="Folio"><Logo size={42} /></div>
       <div className="rail-steps">
         {STEPS.map(([k, label, icon], i) => {
           const reachable = stepEnabled(s, k) || k === s.step

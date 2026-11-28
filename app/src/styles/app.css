@@ -768,3 +768,9 @@ h2{font-size:1.8rem;line-height:1.2}
 /* logo: the mark sits on the canvas, no dark tile */
 .rail-logo{background:none !important;width:auto;height:auto;border-radius:0;filter:drop-shadow(0 4px 6px rgba(59,31,43,.18))}
 .doc-logo svg{filter:drop-shadow(0 3px 5px rgba(59,31,43,.15))}
+
+/* brand: wine mark + Bricolage Grotesque wordmark */
+.rail-logo{filter:drop-shadow(0 6px 10px rgba(140,59,74,.28))}
+.doc-logo svg{filter:drop-shadow(0 4px 8px rgba(140,59,74,.25))}
+.lockup{display:inline-flex;align-items:center;gap:.6rem}
+.wordmark{font-family:"Bricolage Grotesque", var(--f-ui);font-weight:700;font-size:1.55rem;letter-spacing:-.02em;color:var(--ink)}
