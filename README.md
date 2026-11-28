@@ -1,5 +1,7 @@
 # Folio — turn your know-how into a book
 
+> © 2026 Boris Belov. All rights reserved. Shared for evaluation of the Contrast home assignment only — not for reuse. See [LICENSE](LICENSE).
+
 A desktop web tool that takes an expert with no writing or design background from a rough idea to a finished, designed eBook they're proud to share. Built as the Product Design Builder home assignment for Contrast.
 
 **Live prototype:** https://borisbelov.com/dev/contrast/

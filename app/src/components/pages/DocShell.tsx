@@ -19,6 +19,7 @@ export function DocShell({ eyebrow, title, lead, children }: { eyebrow: string; 
       </nav>
       <header className="doc-head"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p className="lead">{lead}</p></header>
       <main className="doc-body">{children}</main>
+      <footer className="doc-foot">© 2026 Boris Belov. All rights reserved. Shared for evaluation only. Not for reuse.</footer>
     </div>
   )
 }
